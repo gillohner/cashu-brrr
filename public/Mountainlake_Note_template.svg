@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+  viewBox="0 0 160 280"
+  version="1.1"
+  id="svg5"
+  sodipodi:docname="Mountainlake_Note_template.svg"
+  inkscape:export-filename="../../Downloads/Mountainlake_Note_template.svg"
+  inkscape:export-xdpi="96"
+  inkscape:export-ydpi="96"
+  inkscape:version="1.3 (0e150ed, 2023-07-21)"
+  xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+  xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+  xmlns="http://www.w3.org/2000/svg"
+  xmlns:svg="http://www.w3.org/2000/svg"
+>
+  <sodipodi:namedview
+    id="namedview5"
+    pagecolor="#ffffff"
+    bordercolor="#000000"
+    borderopacity="0.25"
+    inkscape:showpageshadow="2"
+    inkscape:pageopacity="0.0"
+    inkscape:pagecheckerboard="0"
+    inkscape:deskcolor="#d1d1d1"
+    inkscape:zoom="3.3714286"
+    inkscape:cx="106.63136"
+    inkscape:cy="196.05932"
+    inkscape:window-width="1856"
+    inkscape:window-height="2045"
+    inkscape:window-x="1706"
+    inkscape:window-y="31"
+    inkscape:window-maximized="0"
+    inkscape:current-layer="svg5"
+  />
+  <defs
+    id="defs2"
+  >
+    <linearGradient
+      id="bgGradient"
+      x1="0%"
+      y1="0%"
+      x2="100%"
+      y2="100%"
+    >
+      <stop
+        offset="0%"
+        style="stop-color: #f77f00; stop-opacity: 1"
+        id="stop1"
+      />
+      <stop
+        offset="100%"
+        style="stop-color: #7209b7; stop-opacity: 1"
+        id="stop2"
+      />
+    </linearGradient>
+  </defs>
+  <!-- Background -->
+  <rect
+    width="160"
+    height="280"
+    fill="url(#bgGradient)"
+    rx="0"
+    id="rect2"
+    x="0"
+    y="0"
+  />
+  <!-- Top Left Logo Area -->
+  <g
+    id="logo-placeholder"
+    inkscape:label="logo-placeholder(allow custom svg upload)Render to correct size"
+  >
+    <path
+      d="m 16.367787,27.294186 c 2.889785,1.400491 6.532758,2.899016 10.54464,0.700245 3.08961,-1.680589 1.275809,-5.33587 -1.967513,-5.503929 -3.350921,-0.168059 -4.180965,-1.008354 -4.88804,-2.198771 0,0 -0.753189,-1.834643 0.184454,-3.473218 0.937643,-1.638574 2.56699,-5.013757 -0.76856,-7.5346412 -3.335549,-2.5208837 -9.4840267,0.280098 -9.6377387,6.7083522 -0.1537119,6.428253 3.6429727,9.901471 6.5327577,11.301962 z"
+      id="path32"
+      style="stroke-width: 1.46722"
+    />
+  </g>
+  <!-- Top Right Text Area -->
+  <g
+    id="header-text"
+    transform="translate(65.254237,-1.1864407)"
+    inkscape:label="header-text"
+  >
+    <text
+      x="89.110176"
+      y="13.694916"
+      font-family="system-ui, '-apple-system', sans-serif"
+      font-size="11"
+      font-weight="500"
+      fill="#ffffff"
+      id="text3"
+      style="font-size: 5.33333px"
+    ><tspan
+        sodipodi:role="line"
+        id="tspan5"
+        x="89.110176"
+        y="13.694916"
+        style="font-style: normal; font-variant: normal; font-weight: normal; font-stretch: normal; font-size: 5.33333px; font-family: 'Noto Sans Adlam'; -inkscape-font-specification: 'Noto Sans Adlam'; direction: rtl"
+      >Cashu Token</tspan><tspan
+        sodipodi:role="line"
+        id="tspan6"
+        x="89.110176"
+        y="20.374672"
+        style="font-style: normal; font-variant: normal; font-weight: normal; font-stretch: normal; font-size: 5.33333px; font-family: 'Noto Sans Adlam'; -inkscape-font-specification: 'Noto Sans Adlam'; direction: rtl"
+      >Redeemable with Cashu</tspan><tspan
+        sodipodi:role="line"
+        x="89.110176"
+        y="27.05443"
+        style="font-style: normal; font-variant: normal; font-weight: normal; font-stretch: normal; font-size: 5.33333px; font-family: 'Noto Sans Adlam'; -inkscape-font-specification: 'Noto Sans Adlam'; direction: rtl"
+        id="tspan7"
+      >Wallet of choice</tspan></text>
+  </g>
+  <!-- QR Code Placeholder -->
+  <!-- Network Lines (simplified for editing) -->
+  <!-- Bottom Box -->
+  <rect
+    id="bottom-box"
+    x="-2.3043583e-08"
+    y="216.44069"
+    width="160"
+    height="56.084747"
+    fill="#ffffff"
+    style="stroke-width: 1.10419"
+  />
+  <!-- Denomination Icon and Number -->
+  <g
+    id="denomination"
+    transform="translate(0.29661017,-3.559322)"
+  >
+    <text
+      x="25.127115"
+      y="245.25423"
+      font-size="20px"
+      font-weight="700"
+      fill="#f77f00"
+      id="text5"
+    ><tspan
+        style="font-style: normal; font-variant: normal; font-weight: bold; font-stretch: normal; font-family: Arial; -inkscape-font-specification: 'Arial Bold'"
+        id="tspan12"
+      >69'420</tspan></text>
+    <g
+      id="g21"
+      inkscape:label="Different denominator-logos. Allow switching in interface between the two."
+    >
+      <g
+        id="g20"
+        transform="matrix(1.6577042,0,0,1.6577042,-283.5935,-55.777632)"
+        inkscape:label="sats-icon"
+      >
+        <path
+          class="st266"
+          d="m 176.06,175.3 c 2.38,0 4.74,0 7.11,0.01 v -0.98 c -2.37,0 -4.74,0 -7.11,-0.01 z m -0.01,5.2 c 2.38,0 4.75,0 7.11,0.01 v -0.98 c -2.37,0 -4.74,0 -7.11,-0.01 z m 7.12,-3.53 h -7.11 c 0,0.32 0,0.64 0,0.97 h 7.11 c 0,-0.32 0,-0.64 0,-0.97 z m -3.06,-4.16 v -1.7 c -0.33,0 -0.65,0 -0.97,0 v 1.7 c 0.33,0 0.64,0 0.97,0 z m -0.02,11.03 v -1.7 c -0.33,0 -0.65,0 -0.97,0 v 1.7 c 0.33,0 0.64,0 0.97,0 z"
+          id="path15"
+          style="stroke: #000000; stroke-width: 0.48px; stroke-linecap: round; stroke-linejoin: round"
+        />
+        <path
+          class="st266"
+          d="m 176.06,175.3 v -0.98 c 2.37,0 4.74,0 7.12,0.01 v 0.98 c -2.37,0 -4.74,0 -7.12,-0.01 z"
+          id="path16"
+          style="stroke: #000000; stroke-width: 0.48px; stroke-linecap: round; stroke-linejoin: round"
+        />
+        <path
+          class="st266"
+          d="m 176.05,180.5 v -0.98 c 2.38,0 4.74,0 7.11,0.01 v 0.98 c -2.37,0 -4.73,0 -7.11,-0.01 z"
+          id="path17"
+          style="stroke: #000000; stroke-width: 0.48px; stroke-linecap: round; stroke-linejoin: round"
+        />
+        <path
+          class="st266"
+          d="m 183.17,176.97 v 0.98 c -2.38,0 -4.74,0 -7.11,-0.01 v -0.98 c 2.38,0 4.74,0 7.11,0.01 z"
+          id="path18"
+          style="stroke: #000000; stroke-width: 0.48px; stroke-linecap: round; stroke-linejoin: round"
+        />
+        <path
+          class="st266"
+          d="m 180.11,172.81 h -0.98 c 0,-0.57 0,-1.13 0,-1.71 h 0.98 c 0,0.57 0,1.14 0,1.71 z"
+          id="path19"
+          style="stroke: #000000; stroke-width: 0.48px; stroke-linecap: round; stroke-linejoin: round"
+        />
+        <path
+          class="st266"
+          d="m 180.09,183.84 h -0.98 c 0,-0.57 0,-1.13 0,-1.71 h 0.98 c 0,0.56 0,1.13 0,1.71 z"
+          id="path20"
+          style="stroke: #000000; stroke-width: 0.48px; stroke-linecap: round; stroke-linejoin: round"
+        />
+      </g>
+      <path
+        d="m 21.887627,233.05593 c 0.3,-2.17 -1.36,-3.31 -3.62,-4.06 l 0.7,-2.94 -1.79,-0.43 -0.68,2.86 c -0.47,-0.11 -0.95,-0.22 -1.43,-0.32 l 0.69,-2.88 -1.79,-0.43 -0.7,2.94 c -0.39,-0.08 -0.77,-0.17 -1.14,-0.26 v 0 c 0,0 -2.47,-0.6 -2.47,-0.6 l -0.45,1.91 c 0,0 1.33,0.29 1.3,0.31 0.72,0.17 0.86,0.65 0.84,1.03 l -0.8,3.35 c 0,0 0.11,0.03 0.19,0.06 -0.06,-0.01 -0.12,-0.03 -0.19,-0.04 l -1.12,4.69 c -0.09,0.22 -0.31,0.55 -0.81,0.43 0.02,0.03 -1.3,-0.31 -1.3,-0.31 l -0.86,2.05 2.33,0.55 c 0.43,0.1 0.86,0.21 1.27,0.31 l -0.71,2.97 1.79,0.43 0.7,-2.94 c 0.49,0.13 0.96,0.24 1.43,0.35 l -0.7,2.93 1.79,0.43 0.71,-2.97 c 3.05,0.54 5.33,0.29 6.26,-2.47 0.75,-2.22 -0.08,-3.49 -1.68,-4.31 1.16,-0.28 2.03,-1.06 2.25,-2.64 v 0 c 0,0 0,0 0,0 z m -4.02,5.76 c -0.53,2.22 -4.27,1.06 -5.48,0.78 l 0.94,-3.94 c 1.21,0.29 5.09,0.85 4.54,3.16 z m 0.49,-5.75 c -0.48,2.02 -3.6,1.03 -4.6,0.79 l 0.85,-3.57 c 1.01,0.24 4.26,0.67 3.75,2.78 z"
+        id="path31"
+        transform="translate(-0.29661017,3.559322)"
+        inkscape:label="bitcoin-icon"
+      />
+    </g>
+  </g>
+  <!-- Bottom Text -->
+  <text
+    id="bottom-text"
+    x="6.44068"
+    y="256.22034"
+    text-anchor="middle"
+    font-size="7px"
+    fill="#666666"
+    style="display: inline"
+  ><tspan
+      sodipodi:role="line"
+      x="0"
+      y="0"
+      style="font-style: normal; font-variant: normal; font-weight: normal; font-stretch: normal; font-family: Arial; -inkscape-font-specification: Arial; text-align: start; text-anchor: start"
+      id="tspan11"
+    >MINT.MOUNTAINLAKE.IO</tspan><tspan
+      sodipodi:role="line"
+      id="tspan10"
+      x="0"
+      y="0"
+      style="font-style: normal; font-variant: normal; font-weight: normal; font-stretch: normal; font-family: Arial; -inkscape-font-specification: Arial; text-align: start; text-anchor: start"
+    >YOUR TRUSTED SWISS CASHU MINT</tspan></text>
+  <rect
+    id="rect12"
+    x="26.980589"
+    y="84.607704"
+    width="107.8185"
+    height="106.33546"
+    fill="#ffffff"
+    rx="6.7386556"
+    stroke="#f77f00"
+    stroke-width="1.67304"
+    inkscape:label="qr-placeholder. Keep Circle around it and allow in interface either transparant or color background and also qr code color instead of only white."
+    style="display: inline; fill: none; fill-opacity: 0"
+  />
+</svg>

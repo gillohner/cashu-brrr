@@ -27,11 +27,12 @@
 
   let imageURL = $state("");
 
-
   const randomID = bytesToHex(secp256k1.utils.randomPrivateKey()).slice(0, 12);
 
   onMount(() => {
-    const canvas = document.getElementById("qr-" + randomID) as HTMLCanvasElement | null;
+    const canvas = document.getElementById(
+      "qr-" + randomID,
+    ) as HTMLCanvasElement | null;
     if (canvas) imageURL = canvas.toDataURL();
   });
 
@@ -1336,7 +1337,7 @@
     />
     <rect x="43" y="141" width="97" height="97" fill="url(#pattern4)" />
     <rect x="394" y="31" width="97" height="97" fill="url(#pattern5)" />
-    
+
     <image
       x="178"
       y="50"

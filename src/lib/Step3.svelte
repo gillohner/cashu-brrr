@@ -1,5 +1,10 @@
 <script lang="ts">
-  import { getDecodedToken, getEncodedTokenV4, type Proof, type Token } from "@cashu/cashu-ts";
+  import {
+    getDecodedToken,
+    getEncodedTokenV4,
+    type Proof,
+    type Token,
+  } from "@cashu/cashu-ts";
   import {
     donation,
     preparedTokens,
@@ -19,7 +24,7 @@
     getAmountForTokenSet,
   } from "./utils";
   import { toast } from "svelte-sonner";
-    import { NUTSTASH_PUBKEY, sendViaNostr } from "../nostr";
+  import { NUTSTASH_PUBKEY, sendViaNostr } from "../nostr";
 
   interface Props {
     isPaid?: boolean;
@@ -55,17 +60,17 @@
       }
       if (
         getAmountForTokenSet(token.proofs) <
-        ($selectedDenomination * $selectedNumberOfNotes)+$donation
+        $selectedDenomination * $selectedNumberOfNotes + $donation
       ) {
         throw new Error(
-          `Amount mismatch: Needed at least ${($selectedDenomination * $selectedNumberOfNotes)+$donation}, Received ${getAmountForTokenSet(token.proofs)}`,
+          `Amount mismatch: Needed at least ${$selectedDenomination * $selectedNumberOfNotes + $donation}, Received ${getAmountForTokenSet(token.proofs)}`,
         );
       }
       toast.promise($wallet.receive(token, { outputAmounts }), {
         loading: "Received! Creating new cashu tokens...",
         success: (data) => {
           handleProofs(data);
-          donation.set(0)
+          donation.set(0);
           step.set(4);
           return "Tokens created!";
         },
@@ -85,35 +90,40 @@
 
   const handleProofs = async (ps: Proof[]) => {
     try {
-      
       proofs.update((ctx) => [...ps, ...ctx]);
-      const {tokens, donation: donationToken} = await createTokensForPrint(
-      ps,
-      $wallet.mint.mintUrl,
-      $wallet.unit,
-      $selectedNumberOfNotes,
-    );
-    
-    if (donationToken) {
-      await sendViaNostr(NUTSTASH_PUBKEY, getEncodedTokenV4(donationToken))
-      setTimeout(() => {
-        toast.info('We have received your '+ formatAmount(getAmountForTokenSet(donationToken.proofs), $wallet.unit) +' donation. Thank you for supporting us!')
-      }, 3000);
+      const { tokens, donation: donationToken } = await createTokensForPrint(
+        ps,
+        $wallet.mint.mintUrl,
+        $wallet.unit,
+        $selectedNumberOfNotes,
+      );
+
+      if (donationToken) {
+        await sendViaNostr(NUTSTASH_PUBKEY, getEncodedTokenV4(donationToken));
+        setTimeout(() => {
+          toast.info(
+            "We have received your " +
+              formatAmount(
+                getAmountForTokenSet(donationToken.proofs),
+                $wallet.unit,
+              ) +
+              " donation. Thank you for supporting us!",
+          );
+        }, 3000);
+      }
+
+      const print: Print = {
+        tokens,
+        donation: donationToken,
+        mint: $wallet.mint.mintUrl,
+        ts: Date.now(),
+      };
+      prints.update((ctx) => [print, ...ctx]);
+      preparedTokens.set(tokens);
+    } catch (error) {
+      toast.error(error.message);
+      console.error(error);
     }
-    
-    const print: Print = {
-      tokens,
-      donation: donationToken,
-      mint: $wallet.mint.mintUrl,
-      ts: Date.now(),
-    };
-    prints.update((ctx) => [print, ...ctx]);
-    preparedTokens.set(tokens);
-  } catch (error) {
-    toast.error(error.message)
-    console.error(error) 
-  }
-    
   };
 
   const createTokensForPrint = async (
@@ -133,10 +143,13 @@
         unit,
         proofs: [],
       };
-      if (getAmountForTokenSet(tokens.map(t=> t.proofs).flat())>=$selectedDenomination*$selectedNumberOfNotes) {
-        token.proofs.push(...ps)
-        donationToken = token
-        return {tokens: tokens, donation: donationToken};
+      if (
+        getAmountForTokenSet(tokens.map((t) => t.proofs).flat()) >=
+        $selectedDenomination * $selectedNumberOfNotes
+      ) {
+        token.proofs.push(...ps);
+        donationToken = token;
+        return { tokens: tokens, donation: donationToken };
       }
       for (const amount of outputAmount) {
         const proof = ps.splice(
@@ -147,7 +160,7 @@
       }
       tokens.push(token);
     }
-    return {tokens: tokens, donation: donationToken};
+    return { tokens: tokens, donation: donationToken };
   };
 </script>
 
@@ -179,7 +192,7 @@
       Paste
       <p class="badge badge-warning">
         {formatAmount(
-          ($selectedDenomination * $selectedNumberOfNotes)+$donation,
+          $selectedDenomination * $selectedNumberOfNotes + $donation,
           $wallet.unit,
         )} token
       </p>

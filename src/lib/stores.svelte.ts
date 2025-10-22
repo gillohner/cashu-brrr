@@ -40,8 +40,8 @@ prints.subscribe((value) => {
   window.localStorage.setItem("prints", JSON.stringify(value));
 });
 
-const initialValueStingProofs: string = window.localStorage.getItem("proofs") ??
-  "[]";
+const initialValueStingProofs: string =
+  window.localStorage.getItem("proofs") ?? "[]";
 
 const initialValueProofs: Array<Proof> = JSON.parse(initialValueStingProofs);
 
@@ -100,9 +100,10 @@ const createDiscoveredContactsStore = () => {
   const store = writable<Contact[]>([]);
 
   const add = (npub: string, alias?: string, picture?: string) => {
-    store.update((
-      context,
-    ) => [...context, { npub, alias: alias ?? "", picture }]);
+    store.update((context) => [
+      ...context,
+      { npub, alias: alias ?? "", picture },
+    ]);
   };
 
   return { ...store, add };

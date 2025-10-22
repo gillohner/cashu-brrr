@@ -5,7 +5,7 @@
   import { Check, Minus, X } from "lucide-svelte";
   import { getEncodedTokenV4 } from "@cashu/cashu-ts";
   import { nip19 } from "nostr-tools";
-    import { delay } from "../utils";
+  import { delay } from "../utils";
   let addressBookNpub = $state("");
 
   let sent = $state(false);
@@ -28,13 +28,13 @@
     }
     sent = true;
     toast.info("Tokens were sent over nostr!");
-    await delay(2000)
+    await delay(2000);
     toast.promise(delay(2000), {
-      loading: 'Finishing session...',
-      success: 'Done!'
-    })
-    await delay(3000)
-    window.location.reload()
+      loading: "Finishing session...",
+      success: "Done!",
+    });
+    await delay(3000);
+    window.location.reload();
   };
 
   let selectedNpubs: string[] = $state([]);
@@ -74,27 +74,26 @@
         </span>
       </div>
       <div class="w-full flex justify-end">
-
-          {#if selectedNpubs.includes(contact.npub)}
+        {#if selectedNpubs.includes(contact.npub)}
           <button
-          class="btn btn-success btn-square"
-          onclick={() =>
-            selectedNpubs.splice(
+            class="btn btn-success btn-square"
+            onclick={() =>
+              selectedNpubs.splice(
                 selectedNpubs.findIndex((n) => n === contact.npub),
                 1,
-            )}
-        >
-        <Check></Check>
-    </button>
-    {:else}
-    <button
-    class="btn btn-square border border-white"
-    onclick={() => selectedNpubs.push(contact.npub)}
-    >
-    <Minus></Minus>
-</button>
-{/if}
-</div>
+              )}
+          >
+            <Check></Check>
+          </button>
+        {:else}
+          <button
+            class="btn btn-square border border-white"
+            onclick={() => selectedNpubs.push(contact.npub)}
+          >
+            <Minus></Minus>
+          </button>
+        {/if}
+      </div>
     </div>
   {/each}
 </div>

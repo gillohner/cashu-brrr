@@ -22,9 +22,9 @@
   } from "./utils";
   import UnitSelector from "./comp/UnitSelector.svelte";
   import { toast } from "svelte-sonner";
-    import { DEFAULT_RELAYS } from "../nostr";
-    import Sponsor from "./Sponsor.svelte";
-    import { SPONSORS } from "./sponsors";
+  import { DEFAULT_RELAYS } from "../nostr";
+  import Sponsor from "./Sponsor.svelte";
+  import { SPONSORS } from "./sponsors";
 
   const mints = [
     "https://mint.minibits.cash/Bitcoin",
@@ -93,30 +93,29 @@
     wallet.set(await getWalletWithUnit($mint, unit));
     step.set(2);
   };
-
-  
 </script>
 
 <div class="flex flex-col gap-5 justify-center items-center">
-  <div class="w-full h-20 px-3 items-center justify-center rounded-lg border border-base-300">
+  <div
+    class="w-full h-20 px-3 items-center justify-center rounded-lg border border-base-300"
+  >
     <div class="fixed -mt-6 opacity-35 flex gap-2">Sponsors</div>
     <div class="flex h-full items-center gap-2">
       {#each SPONSORS as sponsor}
         <Sponsor {sponsor}></Sponsor>
       {/each}
-      <a target="_blank" class="p-1 rounded-full bg-base-300 transition-all hover:bg-base-200 flex gap-1 items-center w-min" href="https://geyser.fund/project/brrr/rewards/view/5486">
+      <a
+        target="_blank"
+        class="p-1 rounded-full bg-base-300 transition-all hover:bg-base-200 flex gap-1 items-center w-min"
+        href="https://geyser.fund/project/brrr/rewards/view/5486"
+      >
         <div class="avatar">
           <div class="w-12 rounded-full">
             <img src="/i.jpeg" alt="Become a sponsor on Geyser" />
           </div>
         </div>
-        <p class="text-nowrap text-sm pr-2">
-          Become a sponsor
-        </p>
+        <p class="text-nowrap text-sm pr-2">Become a sponsor</p>
       </a>
-
-
-      
     </div>
   </div>
   <p class="text-center font-bold text-lg">Connect to mint</p>
@@ -215,7 +214,9 @@
               selectedNumberOfNotes={print.tokens.length}
               unit={print.tokens[0].unit}
               isDonate={print.donation}
-              donationAmount={getAmountForTokenSet(print.donation?.proofs??[])}
+              donationAmount={getAmountForTokenSet(
+                print.donation?.proofs ?? [],
+              )}
             ></NotesCalc>
             <p class="break-all">
               {print.mint}
