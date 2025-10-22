@@ -164,7 +164,9 @@ export const createOutputAmount = async (denomination: number) => {
     }
   }
   throw new Error(
-    `Could not create amount ${denomination} from available amounts: ${availableAmounts.join(", ")}`,
+    `Could not create amount ${denomination} from available amounts: ${
+      availableAmounts.join(", ")
+    }`,
   );
 };
 

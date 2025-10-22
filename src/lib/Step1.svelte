@@ -30,6 +30,7 @@
     "https://mint.minibits.cash/Bitcoin",
     "https://stablenut.umint.cash",
     "https://mint.lnvoltz.com",
+    "https://mint.mountainlake.io",
   ];
 
   let mintUrl = $state("");

@@ -3,7 +3,6 @@
   import CustomNote from "./CustomNote.svelte";
   import {
     preparedTokens,
-    selectedDenomination,
     selectedNumberOfNotes,
     wallet,
   } from "./stores.svelte";
@@ -14,11 +13,6 @@
     import JSZip from "jszip";
 
   let active = $state('customize');
-
-  let cornerInput: HTMLInputElement = $state();
-  let brandInput: HTMLInputElement = $state();
-  let brandImage: HTMLImageElement = $state();
-  let cornerImage: HTMLImageElement = $state();
 
   let design = $state(3);
 

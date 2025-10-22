@@ -11,7 +11,7 @@ import { SimplePool } from "nostr-tools";
 
 export type Print = {
   tokens: Token[];
-  donation?: Token
+  donation?: Token;
   mint: string;
   ts: number;
 };
@@ -40,8 +40,8 @@ prints.subscribe((value) => {
   window.localStorage.setItem("prints", JSON.stringify(value));
 });
 
-const initialValueStingProofs: string =
-  window.localStorage.getItem("proofs") ?? "[]";
+const initialValueStingProofs: string = window.localStorage.getItem("proofs") ??
+  "[]";
 
 const initialValueProofs: Array<Proof> = JSON.parse(initialValueStingProofs);
 
@@ -72,10 +72,10 @@ export type DiscoveredContact = {
   reviews: number;
 };
 export type Contact = {
-  npub: string
-  alias: string
-  picture?: string
-}
+  npub: string;
+  alias: string;
+  picture?: string;
+};
 
 const createDiscoveredMintsStore = () => {
   const store = writable<DiscoveredMint[]>([]);
@@ -100,15 +100,16 @@ const createDiscoveredContactsStore = () => {
   const store = writable<Contact[]>([]);
 
   const add = (npub: string, alias?: string, picture?: string) => {
-      store.update((context) => [...context, { npub, alias: alias?? '', picture }]);
-  }
+    store.update((
+      context,
+    ) => [...context, { npub, alias: alias ?? "", picture }]);
+  };
 
-  return {...store, add}
-}
+  return { ...store, add };
+};
 
-export const discoveredContacts = createDiscoveredContactsStore()
-
+export const discoveredContacts = createDiscoveredContactsStore();
 
 export const discoveredMints = createDiscoveredMintsStore();
 
-export const pool = new SimplePool()
+export const pool = new SimplePool();

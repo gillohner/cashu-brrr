@@ -31,7 +31,8 @@
   const randomID = bytesToHex(secp256k1.utils.randomPrivateKey()).slice(0, 12);
 
   onMount(() => {
-    imageURL = document.getElementById("qr-" + randomID).toDataURL();
+    const canvas = document.getElementById("qr-" + randomID) as HTMLCanvasElement | null;
+    if (canvas) imageURL = canvas.toDataURL();
   });
 
   const downloadNote = async (e) => {
