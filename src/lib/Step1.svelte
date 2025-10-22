@@ -107,7 +107,7 @@
       <a target="_blank" class="p-1 rounded-full bg-base-300 transition-all hover:bg-base-200 flex gap-1 items-center w-min" href="https://geyser.fund/project/brrr/rewards/view/5486">
         <div class="avatar">
           <div class="w-12 rounded-full">
-            <img src="/i.jpeg"/>
+            <img src="/i.jpeg" alt="Become a sponsor on Geyser" />
           </div>
         </div>
         <p class="text-nowrap text-sm pr-2">
