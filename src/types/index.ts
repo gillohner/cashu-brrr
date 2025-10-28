@@ -4,5 +4,3 @@
  */
 
 export * from './cashu';
-export * from './design';
-export * from './storage';
