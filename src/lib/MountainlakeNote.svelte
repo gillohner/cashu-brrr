@@ -5,41 +5,59 @@
   import { bytesToHex } from "@noble/curves/abstract/utils";
 
   interface Props {
+    /** Token denomination value */
     denomination: number;
+    /** Mint URL */
     mintUrl: string;
+    /** Encoded Cashu token */
     token: string;
 
-    // Top left logo
+    /** Top left icon type */
     topLeftIcon?: "cashu" | "bitcoin" | "sats" | "custom";
+    /** Custom logo URL if topLeftIcon is 'custom' */
     customLogoUrl?: string;
 
-    // Header text (top right)
+    /** Header text (supports newlines) */
     headerText?: string;
+    /** Header text color */
     headerTextColor?: string;
 
-    // Background gradient
+    /** Background gradient start color */
     gradientStart?: string;
+    /** Background gradient end color */
     gradientEnd?: string;
+    /** Background gradient angle (0-360) */
     gradientAngle?: number;
 
-    // QR code styling
+    /** QR code background color */
     qrBackgroundColor?: string;
+    /** QR code background gradient end color */
     qrBackgroundGradientEnd?: string;
+    /** Enable QR code background gradient */
     useQrGradient?: boolean;
+    /** QR code border color */
     qrBorderColor?: string;
+    /** Disable QR code background */
     disableQrBackground?: boolean;
+    /** Disable QR code border */
     disableQrBorder?: boolean;
+    /** QR code foreground color */
     qrCodeColor?: string;
 
-    // Denomination styling
+    /** Denomination text color */
     denominationColor?: string;
 
-    // Bottom box styling
+    /** Bottom box background color */
     bottomBoxColor?: string;
+    /** Bottom box gradient end color */
     bottomBoxGradientEnd?: string;
+    /** Enable bottom box gradient */
     useDenomGradient?: boolean;
+    /** Disable bottom box background */
     disableDenomBackground?: boolean;
+    /** Bottom text color */
     bottomTextColor?: string;
+    /** Custom bottom text */
     customBottomText?: string;
   }
 

@@ -33,6 +33,9 @@
   import { NUTSTASH_PUBKEY, sendViaNostr } from "../../nostr";
   import { toast } from "svelte-sonner";
 
+  // Silence unused variable warnings - may be used in future
+  void nip04;
+
   let { isPaid = $bindable(false) }: Props = $props();
 
   let invoice = $state("");
@@ -102,7 +105,7 @@
     proofs: Proof[],
     mint: string,
     unit: string,
-    n: number,
+    _n: number, // Reserved for future use
   ) => {
     const tokens: Token[] = [];
     let donationToken: Token | undefined = undefined;
@@ -137,10 +140,10 @@
 </script>
 
 <!-- content here -->
-<div class="flex flex-col gap-2 items-center">
+<div class="flex flex-col gap-3 items-center w-full max-w-md">
   {#if invoice}
     {#if isPaid}
-      <p class="flex items-center gap-2 text-success">
+      <div class="alert alert-success">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
@@ -155,15 +158,18 @@
             d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
           />
         </svg>
-        Invoice has been paid
-      </p>
+        <span>Invoice has been paid</span>
+      </div>
     {:else}
-      <a href={"lightning:" + invoice}><QRCodeImage text={invoice} /> </a>
+      <a href={"lightning:" + invoice} class="w-full flex justify-center">
+        <QRCodeImage text={invoice} /> 
+      </a>
       <div class="flex items-center gap-2 w-full">
-        <input readonly class="input input-primary" value={invoice} />
+        <input readonly class="input input-primary input-sm flex-1 text-xs" value={invoice} />
         <button
-          class="btn btn-primary"
+          class="btn btn-primary btn-sm btn-square"
           onclick={() => copyTextToClipboard(invoice)}
+          aria-label="Copy invoice"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -171,7 +177,7 @@
             viewBox="0 0 24 24"
             stroke-width="1.5"
             stroke="currentColor"
-            class="size-6"
+            class="size-4"
           >
             <path
               stroke-linecap="round"
@@ -179,14 +185,14 @@
               d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 0 1-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 0 1 1.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 0 0-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 0 1-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H9.75"
             />
           </svg>
-          Copy
         </button>
       </div>
-      <p class="opacity-50">
+      <p class="text-xs opacity-60">
         *Overpaid LN fees will be donated to the money printer
       </p>
     {/if}
   {:else}
-    <span class="loading loading-dots loading-md"></span>
+    <span class="loading loading-dots loading-lg"></span>
+    <p class="text-sm opacity-70">Generating invoice...</p>
   {/if}
 </div>

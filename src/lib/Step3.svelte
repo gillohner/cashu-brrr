@@ -16,7 +16,6 @@
     wallet,
     type Print,
   } from "./stores.svelte";
-  import LnInvoice from "./comp/LNInvoice.svelte";
   import {
     createOutputAmount,
     createOutputAmounts,
@@ -25,20 +24,12 @@
   } from "./utils";
   import { toast } from "svelte-sonner";
   import { NUTSTASH_PUBKEY, sendViaNostr } from "../nostr";
-
-  interface Props {
-    isPaid?: boolean;
-  }
-
-  let inputToken = $state("");
-
-  let isLoading = $state(false);
+  import PaymentMethod from "../components/ui/PaymentMethod.svelte";
 
   let tab = $state("ecash");
 
-  const validate = async () => {
+  const validate = async (inputToken: string) => {
     try {
-      isLoading = true;
       const outputAmounts = await createOutputAmounts(
         $selectedDenomination,
         $selectedNumberOfNotes,
@@ -76,15 +67,18 @@
         },
         error: (e) => {
           console.error(e);
-          return e.message;
+          const message =
+            e instanceof Error ? e.message : "Failed to create tokens";
+          return message;
         },
       });
     } catch (error) {
-      toast.error(error.message);
+      const message =
+        error instanceof Error ? error.message : "Validation failed";
+      toast.error(message);
       console.error(error);
     } finally {
-      isLoading = false;
-      inputToken = "";
+      // isLoading is managed by PaymentMethod component now
     }
   };
 
@@ -95,7 +89,6 @@
         ps,
         $wallet.mint.mintUrl,
         $wallet.unit,
-        $selectedNumberOfNotes,
       );
 
       if (donationToken) {
@@ -121,7 +114,9 @@
       prints.update((ctx) => [print, ...ctx]);
       preparedTokens.set(tokens);
     } catch (error) {
-      toast.error(error.message);
+      const message =
+        error instanceof Error ? error.message : "Failed to handle proofs";
+      toast.error(message);
       console.error(error);
     }
   };
@@ -130,7 +125,6 @@
     proofs: Proof[],
     mint: string,
     unit: string,
-    n: number,
   ) => {
     const tokens: Token[] = [];
     let donationToken: Token | undefined = undefined;
@@ -164,53 +158,10 @@
   };
 </script>
 
-<div class="flex flex-col justify-center gap-2 items-center">
-  <div role="tablist" class="tabs tabs-boxed">
-    <button
-      role="tab"
-      class="tab"
-      class:tab-active={tab === "ecash"}
-      onclick={() => {
-        tab = "ecash";
-      }}>Ecash</button
-    >
-    <button
-      role="tab"
-      class="tab"
-      class:tab-active={tab === "ln"}
-      onclick={() => {
-        tab = "ln";
-      }}>Lightning</button
-    >
-  </div>
-  <div class="flex flex-col items-center justify-center gap-2 h-96">
-    {#if tab === "ln"}
-      <div>
-        <LnInvoice></LnInvoice>
-      </div>
-    {:else}
-      Paste
-      <p class="badge badge-warning">
-        {formatAmount(
-          $selectedDenomination * $selectedNumberOfNotes + $donation,
-          $wallet.unit,
-        )} token
-      </p>
-      <p>From</p>
-      <p class="badge badge-info">
-        {$wallet?.mint.mintUrl}
-      </p>
-
-      <input
-        class="input input-primary"
-        placeholder="cashuB...."
-        bind:value={inputToken}
-        onpaste={validate}
-        disabled={isLoading}
-      />
-      <p class="opacity-50">
-        *Overpaid tokens will be donated to the money printer
-      </p>
-    {/if}
-  </div>
-</div>
+<PaymentMethod
+  bind:selectedTab={tab}
+  totalAmount={$selectedDenomination * $selectedNumberOfNotes + $donation}
+  unit={$wallet.unit}
+  mintUrl={$wallet?.mint.mintUrl}
+  onEcashPaste={validate}
+/>

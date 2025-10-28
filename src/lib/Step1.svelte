@@ -1,41 +1,24 @@
 <script lang="ts">
   import { CashuMint, CashuWallet } from "@cashu/cashu-ts";
   import {
-    discoveredMints,
     mint,
-    pool,
     preparedTokens,
-    prints,
     selectedDenomination,
     selectedNumberOfNotes,
     step,
     wallet,
     type Print,
   } from "./stores.svelte";
-  import NotesCalc from "./comp/NotesCalc.svelte";
-  import { type Event, type Filter } from "nostr-tools";
-  import {
-    delay,
-    getAmountForTokenSet,
-    getWalletWithUnit,
-    loadMint,
-  } from "./utils";
   import UnitSelector from "./comp/UnitSelector.svelte";
   import { toast } from "svelte-sonner";
-  import { DEFAULT_RELAYS } from "../nostr";
   import Sponsor from "./Sponsor.svelte";
   import { SPONSORS } from "./sponsors";
-
-  const mints = [
-    "https://mint.minibits.cash/Bitcoin",
-    "https://stablenut.umint.cash",
-    "https://mint.lnvoltz.com",
-    "https://mint.mountainlake.io",
-  ];
+  import MintDiscovery from "../components/ui/MintDiscovery.svelte";
+  import PrintHistoryList from "../components/ui/PrintHistoryList.svelte";
+  import { getWalletWithUnit, loadMint } from "./utils";
 
   let mintUrl = $state("");
   let isConnecting = $state(false);
-  let isDiscovering = $state(false);
   let unit = $state("sat");
 
   const connect = async () => {
@@ -45,40 +28,16 @@
       mint.set(m);
       toast.success("Connected to " + $mint.url);
     } catch (error) {
-      toast.error(error.message);
+      const message =
+        error instanceof Error ? error.message : "Failed to connect to mint";
+      toast.error(message);
     } finally {
       isConnecting = false;
     }
   };
 
-  export const discoverMints = async () => {
-    try {
-      isDiscovering = true;
-      discoveredMints.set([]);
-      const activeRelays = DEFAULT_RELAYS;
-      const filter: Filter = { kinds: [38000], limit: 2000 };
-      pool.subscribeMany(activeRelays, [filter], {
-        onevent: (event: Event) => {
-          const uTag = event.tags.find((t) => t[0] === "u");
-          const kTag = event.tags.find((t) => t[0] === "k");
-          if (!kTag || !uTag) {
-            return;
-          }
-
-          if (kTag[1] != "38172") {
-            return;
-          }
-          const mintUrl = uTag[1];
-          discoveredMints.add(mintUrl);
-        },
-      });
-      await delay(2000);
-    } catch (error) {
-      console.error(error);
-      toast.error(error.message);
-    } finally {
-      isDiscovering = false;
-    }
+  const handleMintSelect = (url: string) => {
+    mintUrl = url;
   };
 
   const reprint = (print: Print) => {
@@ -119,34 +78,7 @@
     </div>
   </div>
   <p class="text-center font-bold text-lg">Connect to mint</p>
-  <div class="flex flex-col lg:flex-row gap-2 flex-wrap">
-    <button
-      class="btn btn-xs rounded-full btn-primary"
-      onclick={discoverMints}
-      disabled={isDiscovering}
-    >
-      Discover more mints
-    </button>
-    {#if $discoveredMints.length}
-      {#each $discoveredMints as m}
-        <button
-          class="btn btn-xs rounded-full btn-secondary"
-          onclick={() => (mintUrl = m.url)}
-        >
-          {m.url}
-        </button>
-      {/each}
-    {:else}
-      {#each mints as m}
-        <button
-          class="btn btn-xs rounded-full btn-secondary"
-          onclick={() => (mintUrl = m)}
-        >
-          {m}
-        </button>
-      {/each}
-    {/if}
-  </div>
+  <MintDiscovery onMintSelect={handleMintSelect} />
   <div
     class="border-dashed border-spacing-2 border-base-100 border-2 flex gap-2 justify-center py-5 w-full"
   >
@@ -193,40 +125,5 @@
     </button>
   {/if}
 
-  {#if $prints.length}
-    <div class="divider">or</div>
-    <p class="font-bold">Re-print previous print</p>
-    <div class="h-fit">
-      <div
-        class="h-full max-h-52 lg:max-h-96 flex flex-col gap-3 overflow-x-scroll"
-      >
-        {#each $prints as print}
-          <div class="flex gap-2 flex-col bg-base-300 rounded-lg p-2 w-80">
-            <button
-              class="btn btn-secondary btn-sm"
-              onclick={() => reprint(print)}>Print</button
-            >
-            {console.log(print)}
-            <NotesCalc
-              selectedDenomination={getAmountForTokenSet(
-                print.tokens[0].proofs,
-              )}
-              selectedNumberOfNotes={print.tokens.length}
-              unit={print.tokens[0].unit}
-              isDonate={print.donation}
-              donationAmount={getAmountForTokenSet(
-                print.donation?.proofs ?? [],
-              )}
-            ></NotesCalc>
-            <p class="break-all">
-              {print.mint}
-            </p>
-            <p class="text-sm text-neutral">
-              {new Date(print.ts).toLocaleString()}
-            </p>
-          </div>
-        {/each}
-      </div>
-    </div>
-  {/if}
+  <PrintHistoryList onReprint={reprint} />
 </div>

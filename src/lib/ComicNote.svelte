@@ -5,10 +5,15 @@
   import { bytesToHex } from "@noble/curves/abstract/utils";
 
   interface Props {
+    /** Token denomination value */
     denomination: number;
+    /** Mint URL */
     mintUrl: string;
+    /** Encoded Cashu token */
     token: string;
+    /** Token unit (sat, usd, etc.) */
     unit: string;
+    /** Design variant (3-25) */
     design: number;
   }
 
@@ -16,8 +21,12 @@
 
   let imageURL = $state("");
 
+  // Generate unique ID for this note instance
   const randomID = bytesToHex(secp256k1.utils.randomPrivateKey()).slice(0, 12);
 
+  /**
+   * Convert QR code canvas to data URL for embedding in SVG
+   */
   onMount(() => {
     const canvas = document.getElementById(
       "qr-" + randomID,
@@ -25,14 +34,20 @@
     if (canvas) imageURL = canvas.toDataURL();
   });
 
-  const downloadNote = async (e) => {
-    const svg = e.target.nearestViewportElement;
+  /**
+   * Download the note as SVG file
+   */
+  const downloadNote = async (e: Event) => {
+    const target = e.target as SVGElement;
+    const svg = target.nearestViewportElement;
+    if (!svg) return;
+    
     const xml = new XMLSerializer().serializeToString(svg);
-    const svg64 = btoa(xml); //for utf8: btoa(unescape(encodeURIComponent(xml)))
-    var a = document.createElement("a"); //Create <a>
-    a.href = "data:image/svg+xml;base64," + svg64; //Image Base64 Goes here
-    a.download = `${mintUrl}_${denomination}_${unit}.svg`; //File name Here
-    a.click(); //Downloaded file
+    const svg64 = btoa(xml);
+    const a = document.createElement("a");
+    a.href = "data:image/svg+xml;base64," + svg64;
+    a.download = `${mintUrl}_${denomination}_${unit}.svg`;
+    a.click();
   };
 </script>
 

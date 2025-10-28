@@ -21,11 +21,19 @@
     <h1 class="w-full text-center font-bold text-2xl">
       Money printer go brrrrr
     </h1>
-    <ul class="steps">
-      <li data-content="🏦" class="step step-primary"></li>
-      <li data-content="💵" class="step {$step > 1 ? 'step-primary' : ''}"></li>
-      <li data-content="⚡" class="step {$step > 2 ? 'step-primary' : ''}"></li>
-      <li data-content="🖨️" class="step {$step > 3 ? 'step-primary' : ''}"></li>
+    <ul class="steps w-full max-w-md">
+      <li data-content="🏦" class="step {$step >= 1 ? 'step-primary' : ''}">
+        <span class="hidden sm:inline text-xs">Mint</span>
+      </li>
+      <li data-content="💵" class="step {$step >= 2 ? 'step-primary' : ''}">
+        <span class="hidden sm:inline text-xs">Amount</span>
+      </li>
+      <li data-content="⚡" class="step {$step >= 3 ? 'step-primary' : ''}">
+        <span class="hidden sm:inline text-xs">Pay</span>
+      </li>
+      <li data-content="🖨️" class="step {$step >= 4 ? 'step-primary' : ''}">
+        <span class="hidden sm:inline text-xs">Print</span>
+      </li>
     </ul>
     <div class="m-auto w-full">
       {#if $step === 1}
