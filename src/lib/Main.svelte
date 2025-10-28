@@ -46,9 +46,9 @@
         <Step4 />
       {/if}
     </div>
-    <div class="flex gap-4">
+    <div class="flex gap-4 flex-wrap justify-center">
       <button
-        class="m-4 btn btn-sm btn-error flex"
+        class="m-2 btn btn-sm btn-error flex"
         onclick={() => (showDonate = !showDonate)}
       >
         <Heart></Heart>
@@ -60,7 +60,7 @@
       </button>
       <a
         href="https://github.com/gandlafbtc/cashu-brrr"
-        class="m-4 btn btn-sm btn-info"
+        class="m-2 btn btn-sm btn-info"
       >
         <Code></Code>
         Code

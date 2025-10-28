@@ -16,13 +16,7 @@ export interface StorageOptions {
   ttl?: number;
 }
 
-export interface PubkyConfig {
-  homeserver?: string;
-  publicKey?: string;
-  privateKey?: string;
-}
-
-export type StorageType = 'local' | 'pubky' | 'memory';
+export type StorageType = 'local' | 'memory';
 
 export interface StorageMetadata {
   type: StorageType;

@@ -2,7 +2,7 @@
   import { toast } from "svelte-sonner";
   import { discoverContacts, sendViaNostr } from "../../nostr";
   import { discoveredContacts, preparedTokens } from "../stores.svelte";
-  import { Check, Minus, X } from "lucide-svelte";
+  import { Check, Minus } from "lucide-svelte";
   import { getEncodedTokenV4 } from "@cashu/cashu-ts";
   import { nip19 } from "nostr-tools";
   import { delay } from "../utils";

@@ -52,7 +52,7 @@
    */
   const downloadNote = async (e: Event) => {
     const target = e.target as SVGElement;
-    const svg = target.nearestViewportElement;
+    const svg = target.viewportElement;
     if (!svg) return;
     
     const xml = new XMLSerializer().serializeToString(svg);

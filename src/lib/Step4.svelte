@@ -12,6 +12,7 @@
   import ComicNote from "./ComicNote.svelte";
   import encodeQR from "qr";
   import JSZip from "jszip";
+  import MountainlakeDesigner from "../components/ui/MountainlakeDesigner.svelte";
 
   type ActiveTab = 'customize' | 'print' | 'share';
   type TemplateType = 'comic' | 'custom' | 'mountainlake';
@@ -31,18 +32,61 @@
   let cornerBrandLogoURL = $state("");
 
   // Mountainlake note configuration
-  let topLeftIcon = $state<"cashu" | "bitcoin" | "sats" | "custom">("cashu");
+  let topLeftIcon = $state<"cashu" | "bitcoin" | "none" | "custom">("cashu");
   let customLogoUrl = $state("");
+  let topLeftIconColor = $state("#FFFFFF");
   let headerText = $state("Cashu Token\nRedeemable with Cashu\nWallet of choice");
   let headerTextColor = $state("#FFFFFF");
-  let gradientStart = $state("#F77F00");
-  let gradientEnd = $state("#7209B7");
+  
+  // Collapsible sections state
+  let bgSectionOpen = $state(true);
+  let topLeftSectionOpen = $state(false);
+  let topRightSectionOpen = $state(false);
+  let qrSectionOpen = $state(false);
+  let bottomSectionOpen = $state(false);
+  
+  // Advanced gradient system - background
+  let bgGradientType = $state<'linear' | 'radial' | 'solid'>('linear');
+  let gradientType = $state<'linear' | 'radial'>('linear');
+  let gradientAngle = $state(135);
+  let gradientStops = $state([
+    { offset: 0, color: "#F77F00" },
+    { offset: 100, color: "#7209B7" }
+  ]);
+  let radialCenterX = $state(50);
+  let radialCenterY = $state(50);
+  let bgSolidColor = $state("#F77F00");
+  
+  // QR Code customization
+  let qrGradientType = $state<'linear' | 'radial' | 'solid'>('solid');
+  let qrGradientAngle = $state(90);
+  let qrGradientStops = $state([
+    { offset: 0, color: "#FFFFFF" },
+    { offset: 100, color: "#F0F0F0" }
+  ]);
   let qrBackgroundColor = $state("#FFFFFF");
   let qrBorderColor = $state("#F77F00");
+  let qrCodeColor = $state("#000000");
+  let disableQrBorder = $state(false);
+  let disableQrBackground = $state(false);
+  
   let denominationColor = $state("#F77F00");
   let bottomBoxColor = $state("#FFFFFF");
   let bottomTextColor = $state("#666666");
   let customBottomText = $state("");
+  
+  // Custom layers for images/graphics
+  let customLayers = $state<Array<{
+    id: string;
+    type: 'image' | 'text' | 'shape';
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    content: string;
+    rotation?: number;
+    opacity?: number;
+  }>>([]);
 
   /**
    * Handle brand logo file upload
@@ -119,17 +163,18 @@
 
 
 </script>
+
 <!-- Tab Navigation -->
 <div class="flex w-full items-center justify-center">
   <div role="tablist" class="tabs tabs-boxed min-w-80">
-    <button role="tab" class="tab" class:tab-active={active === 'customize'} onclick={()=> active = 'customize'}>Customize</button>
+    <button role="tab" class="tab" class:tab-active={active === 'customize'} onclick={()=> active = 'customize'}>Templates</button>
     <button role="tab" class="tab" class:tab-active={active === 'print'} onclick={()=> active = 'print'}>Print</button>
     <button role="tab" class="tab" class:tab-active={active === 'share'} onclick={()=> active = 'share'}>Share</button>
   </div>
 </div>
 
-{#if active === 'customize'}
-  <div class="flex flex-col gap-4 items-center w-full max-w-4xl mx-auto">
+  {#if active === 'customize'}
+  <div class="flex flex-col gap-4 items-center w-full max-w-7xl mx-auto px-4">
     <!-- Template Selection -->
     <div>
       <h3 class="text-sm font-semibold mb-2 text-center">Choose Design Template</h3>
@@ -146,6 +191,7 @@
             mintUrl={$wallet?.mint.mintUrl}
             token={"blabla"}
             unit={$preparedTokens[0]?.unit??'sat'}
+            disableDownload={true}
           />
         </button>
         <button 
@@ -178,20 +224,26 @@
             {customLogoUrl}
             {headerText}
             {headerTextColor}
-            {gradientStart}
-            {gradientEnd}
+            {gradientType}
+            {gradientStops}
+            {gradientAngle}
+            {radialCenterX}
+            {radialCenterY}
             {qrBackgroundColor}
             {qrBorderColor}
             {denominationColor}
             {bottomBoxColor}
             {bottomTextColor}
             {customBottomText}
+            {customLayers}
           />
         </button>
       </div>
     </div>
-    <!-- Template Customization -->
-    <div class="w-full max-w-2xl">
+    <!-- Template Customization - Two Column Layout -->
+    <div class="w-full grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-6">
+      <!-- Left: Customization Controls -->
+      <div class="w-full">
       {#if selectedTemplate === 'comic'}
         <div class="bg-base-200 rounded-lg p-4">
           <div class="flex items-center justify-between mb-3">
@@ -212,16 +264,6 @@
               class="range range-primary range-sm"
             />
           </label>
-        </div>
-
-        <div class="mt-4 flex justify-center">
-          <ComicNote
-            {design}
-            denomination={getAmountForTokenSet($preparedTokens[0]?.proofs??[])}
-            mintUrl={$wallet?.mint.mintUrl}
-            token={"blabla"}
-            unit={$preparedTokens[0]?.unit??'sat'}
-          />
         </div>
         
       {:else if selectedTemplate === "custom"}
@@ -267,118 +309,97 @@
           </div>
         </div>
 
-        <div class="mt-4 flex justify-center">
-          <CustomNote
-            {brandLogoURL}
-            {colorCode}
-            {cornerBrandLogoURL}
-            denomination={getAmountForTokenSet($preparedTokens[0]?.proofs??[])}
-            mintUrl={$wallet?.mint.mintUrl}
-            token={"blabla"}
-            unit={$preparedTokens[0]?.unit??'sat'}
-          />
-        </div>
-
       {:else if selectedTemplate === "mountainlake"}
-        <div class="bg-base-200 rounded-lg p-4">
-          <div class="flex items-center justify-between mb-3">
-            <h3 class="font-semibold">Mountainlake Design</h3>
-            <span class="badge badge-sm badge-info">Fully Customizable</span>
-          </div>
-          
-          <div class="space-y-4">
-            <!-- Background Gradient -->
-            <div>
-              <h4 class="text-sm font-medium mb-2">Background Colors</h4>
-              <div class="grid grid-cols-2 gap-3">
-                <label class="form-control">
-                  <div class="label pb-1">
-                    <span class="label-text text-xs">Gradient Start</span>
-                  </div>
-                  <input type="color" bind:value={gradientStart} class="w-full h-10 rounded cursor-pointer" />
-                </label>
-                <label class="form-control">
-                  <div class="label pb-1">
-                    <span class="label-text text-xs">Gradient End</span>
-                  </div>
-                  <input type="color" bind:value={gradientEnd} class="w-full h-10 rounded cursor-pointer" />
-                </label>
-              </div>
-            </div>
-
-            <!-- QR Code Styling -->
-            <div>
-              <h4 class="text-sm font-medium mb-2">QR Code Colors</h4>
-              <div class="grid grid-cols-2 gap-3">
-                <label class="form-control">
-                  <div class="label pb-1">
-                    <span class="label-text text-xs">Background</span>
-                  </div>
-                  <input type="color" bind:value={qrBackgroundColor} class="w-full h-10 rounded cursor-pointer" />
-                </label>
-                <label class="form-control">
-                  <div class="label pb-1">
-                    <span class="label-text text-xs">Border</span>
-                  </div>
-                  <input type="color" bind:value={qrBorderColor} class="w-full h-10 rounded cursor-pointer" />
-                </label>
-              </div>
-            </div>
-
-            <!-- Text Content -->
-            <div>
-              <h4 class="text-sm font-medium mb-2">Text Content</h4>
-              <div class="space-y-3">
-                <label class="form-control">
-                  <div class="label pb-1">
-                    <span class="label-text text-xs">Header Text</span>
-                    <span class="label-text-alt text-xs opacity-60">3 lines</span>
-                  </div>
-                  <textarea
-                    bind:value={headerText}
-                    class="textarea textarea-bordered textarea-sm"
-                    rows="3"
-                    placeholder="Line 1&#10;Line 2&#10;Line 3"
-                  ></textarea>
-                </label>
-
-                <label class="form-control">
-                  <div class="label pb-1">
-                    <span class="label-text text-xs">Bottom Text</span>
-                    <span class="label-text-alt text-xs opacity-60">Optional</span>
-                  </div>
-                  <textarea
-                    bind:value={customBottomText}
-                    class="textarea textarea-bordered textarea-sm"
-                    rows="2"
-                    placeholder="Custom message"
-                  ></textarea>
-                </label>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="mt-4 flex justify-center">
-          <MountainlakeNote 
-            denomination={getAmountForTokenSet($preparedTokens[0]?.proofs??[])}
-            mintUrl={$wallet?.mint.mintUrl}
-            token={"blabla"}
-            {topLeftIcon}
-            {customLogoUrl}
-            {headerText}
-            {headerTextColor}
-            {gradientStart}
-            {gradientEnd}
-            {qrBackgroundColor}
-            {qrBorderColor}
-            {denominationColor}
-            {bottomBoxColor}
-            {bottomTextColor}
-            {customBottomText}
-          />
-        </div>
+        <MountainlakeDesigner 
+          bind:bgSectionOpen={bgSectionOpen}
+          bind:topLeftSectionOpen={topLeftSectionOpen}
+          bind:topRightSectionOpen={topRightSectionOpen}
+          bind:qrSectionOpen={qrSectionOpen}
+          bind:bottomSectionOpen={bottomSectionOpen}
+          bind:bgGradientType={bgGradientType}
+          bind:bgSolidColor={bgSolidColor}
+          bind:gradientType={gradientType}
+          bind:gradientAngle={gradientAngle}
+          bind:gradientStops={gradientStops}
+          bind:radialCenterX={radialCenterX}
+          bind:radialCenterY={radialCenterY}
+          bind:topLeftIcon={topLeftIcon}
+          bind:customLogoUrl={customLogoUrl}
+          bind:topLeftIconColor={topLeftIconColor}
+          bind:headerText={headerText}
+          bind:headerTextColor={headerTextColor}
+          bind:qrGradientType={qrGradientType}
+          bind:qrGradientAngle={qrGradientAngle}
+          bind:qrGradientStops={qrGradientStops}
+          bind:qrCodeColor={qrCodeColor}
+          bind:qrBackgroundColor={qrBackgroundColor}
+          bind:qrBorderColor={qrBorderColor}
+          bind:disableQrBackground={disableQrBackground}
+          bind:disableQrBorder={disableQrBorder}
+          bind:denominationColor={denominationColor}
+          bind:bottomBoxColor={bottomBoxColor}
+          bind:bottomTextColor={bottomTextColor}
+          bind:customBottomText={customBottomText}
+        />
       {/if}
+      </div>
+
+      <!-- Right: Live Preview -->
+      <div class="flex justify-center items-start sticky top-4">
+        <div class="bg-base-200 rounded-lg p-4">
+          <h4 class="text-sm font-semibold mb-3 text-center">Preview</h4>
+          {#if selectedTemplate === 'comic'}
+            <ComicNote
+              {design}
+              denomination={getAmountForTokenSet($preparedTokens[0]?.proofs??[])}
+              mintUrl={$wallet?.mint.mintUrl}
+              token={"blabla"}
+              unit={$preparedTokens[0]?.unit??'sat'}
+              disableDownload={true}
+            />
+          {:else if selectedTemplate === 'custom'}
+            <CustomNote
+              {brandLogoURL}
+              {colorCode}
+              {cornerBrandLogoURL}
+              denomination={getAmountForTokenSet($preparedTokens[0]?.proofs??[])}
+              mintUrl={$wallet?.mint.mintUrl}
+              token={"blabla"}
+              unit={$preparedTokens[0]?.unit??'sat'}
+            />
+          {:else if selectedTemplate === 'mountainlake'}
+            <MountainlakeNote 
+              denomination={getAmountForTokenSet($preparedTokens[0]?.proofs??[])}
+              mintUrl={$wallet?.mint.mintUrl}
+              token={"blabla"}
+              {topLeftIcon}
+              {customLogoUrl}
+              topLeftIconColor={topLeftIconColor}
+              {headerText}
+              {headerTextColor}
+              {bgGradientType}
+              {bgSolidColor}
+              {gradientType}
+              {gradientStops}
+              {gradientAngle}
+              {radialCenterX}
+              {radialCenterY}
+              {qrGradientType}
+              {qrGradientAngle}
+              {qrGradientStops}
+              {qrCodeColor}
+              {qrBackgroundColor}
+              {qrBorderColor}
+              {disableQrBorder}
+              {disableQrBackground}
+              {denominationColor}
+              {bottomBoxColor}
+              {bottomTextColor}
+              {customBottomText}
+            />
+          {/if}
+        </div>
+      </div>
     </div>
 
     <!-- Action Buttons -->
@@ -464,19 +485,23 @@
           {customLogoUrl}
           {headerText}
           {headerTextColor}
-          {gradientStart}
-          {gradientEnd}
+          {gradientType}
+          {gradientStops}
+          {gradientAngle}
+          {radialCenterX}
+          {radialCenterY}
           {qrBackgroundColor}
           {qrBorderColor}
           {denominationColor}
           {bottomBoxColor}
           {bottomTextColor}
           {customBottomText}
+          {customLayers}
         />
       {/if}
     {/each}
   </div>
     
-  {:else if active === 'share'}
-      <ShareViaNostr></ShareViaNostr>
-  {/if}
+{:else if active === 'share'}
+  <ShareViaNostr></ShareViaNostr>
+{/if}

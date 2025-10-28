@@ -57,7 +57,7 @@ export const discoverContacts = async (npub: string) => {
 
 const discoverContactsDetails = async (contacts: string[]) => {
   const filter: Filter = { kinds: [0], limit: 1000, authors: contacts };
-  const sub = pool.subscribeMany(DEFAULT_RELAYS, [filter], {
+  pool.subscribeMany(DEFAULT_RELAYS, [filter], {
     onevent: (event: Event) => {
       const content = JSON.parse(event.content);
       discoveredContacts.add(

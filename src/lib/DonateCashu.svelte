@@ -18,7 +18,7 @@
         toast.info("Donation received! Thanks for your support 🧡");
       } catch (error) {
         console.error(error);
-        toast.error(error.message);
+        toast.error(error instanceof Error ? error.message : "An error occurred");
       } finally {
         inputCashu = "";
       }

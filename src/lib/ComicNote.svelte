@@ -15,9 +15,11 @@
     unit: string;
     /** Design variant (3-25) */
     design: number;
+    /** Disable download on click (for preview mode) */
+    disableDownload?: boolean;
   }
 
-  let { denomination, mintUrl, token, unit, design }: Props = $props();
+  let { denomination, mintUrl, token, unit, design, disableDownload = false }: Props = $props();
 
   let imageURL = $state("");
 
@@ -39,7 +41,7 @@
    */
   const downloadNote = async (e: Event) => {
     const target = e.target as SVGElement;
-    const svg = target.nearestViewportElement;
+    const svg = target.viewportElement;
     if (!svg) return;
     
     const xml = new XMLSerializer().serializeToString(svg);
@@ -59,7 +61,13 @@
     displayID="qr-{randomID}"
   />
 </div>
-<button onclick={downloadNote} class="w-full">
+
+<svelte:element 
+  this={disableDownload ? 'div' : 'button'} 
+  role={disableDownload ? 'img' : 'button'}
+  onclick={disableDownload ? undefined : downloadNote} 
+  class={disableDownload ? '' : 'w-full'}
+>
   <svg
     version="1.1"
     viewBox="0 0 420.32997 214.49"
@@ -11583,4 +11591,4 @@
       ></g
     ></svg
   >
-</button>
+</svelte:element>

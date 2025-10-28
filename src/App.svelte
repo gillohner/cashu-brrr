@@ -6,6 +6,7 @@
   import { getAmountForTokenSet } from "./lib/utils";
   
   const urlParams = window.location.hash.slice(1).split("/");
+  
   const token = $derived.by(() => {
     const tokenString = urlParams[0];
     try {

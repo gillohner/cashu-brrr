@@ -8,8 +8,6 @@ import {
   type Proof,
 } from "@cashu/cashu-ts";
 import {
-  selectedDenomination,
-  selectedNumberOfNotes,
   wallet,
 } from "./stores.svelte";
 import { get } from "svelte/store";
