@@ -19,7 +19,14 @@
     disableDownload?: boolean;
   }
 
-  let { denomination, mintUrl, token, unit, design, disableDownload = false }: Props = $props();
+  let {
+    denomination,
+    mintUrl,
+    token,
+    unit,
+    design,
+    disableDownload = false,
+  }: Props = $props();
 
   let imageURL = $state("");
 
@@ -43,7 +50,7 @@
     const target = e.target as SVGElement;
     const svg = target.viewportElement;
     if (!svg) return;
-    
+
     const xml = new XMLSerializer().serializeToString(svg);
     const svg64 = btoa(xml);
     const a = document.createElement("a");
@@ -62,11 +69,11 @@
   />
 </div>
 
-<svelte:element 
-  this={disableDownload ? 'div' : 'button'} 
-  role={disableDownload ? 'img' : 'button'}
-  onclick={disableDownload ? undefined : downloadNote} 
-  class={disableDownload ? '' : 'w-full'}
+<svelte:element
+  this={disableDownload ? "div" : "button"}
+  role={disableDownload ? "img" : "button"}
+  onclick={disableDownload ? undefined : downloadNote}
+  class={disableDownload ? "" : "w-full"}
 >
   <svg
     version="1.1"

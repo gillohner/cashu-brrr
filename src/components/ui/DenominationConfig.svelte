@@ -22,13 +22,13 @@
 
   // Cache for valid denominations (≤4 outputs)
   const validDenominationsCache = new Map<number, boolean>();
-  
+
   // Check if a denomination is valid (has ≤4 outputs)
   const isValidDenomination = async (value: number): Promise<boolean> => {
     if (validDenominationsCache.has(value)) {
       return validDenominationsCache.get(value)!;
     }
-    
+
     try {
       const outputs = await createOutputAmount(value);
       const isValid = outputs.length <= 4;
@@ -47,14 +47,14 @@
   ) => {
     const step = direction === "up" ? 1 : -1;
     const maxIterations = 1000; // Safety limit
-    
+
     for (let i = 1; i <= maxIterations; i++) {
-      const testValue = current + (step * i);
-      
+      const testValue = current + step * i;
+
       if (testValue < 1) {
         return 1;
       }
-      
+
       const isValid = await isValidDenomination(testValue);
       if (isValid) {
         return testValue;

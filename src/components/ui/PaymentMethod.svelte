@@ -24,7 +24,7 @@
   const handlePaste = async (e: ClipboardEvent) => {
     if (onEcashPaste) {
       e.preventDefault();
-      const pastedText = e.clipboardData?.getData('text') || '';
+      const pastedText = e.clipboardData?.getData("text") || "";
       if (pastedText) {
         isLoading = true;
         onEcashPaste(pastedText);
@@ -37,7 +37,9 @@
   };
 </script>
 
-<div class="flex flex-col justify-center gap-4 items-center w-full max-w-lg mx-auto">
+<div
+  class="flex flex-col justify-center gap-4 items-center w-full max-w-lg mx-auto"
+>
   <div role="tablist" class="tabs tabs-boxed">
     <button
       role="tab"
@@ -56,8 +58,10 @@
       }}>Lightning</button
     >
   </div>
-  
-  <div class="flex flex-col items-center justify-center gap-3 min-h-[400px] w-full p-4">
+
+  <div
+    class="flex flex-col items-center justify-center gap-3 min-h-[400px] w-full p-4"
+  >
     {#if selectedTab === "ln"}
       <div class="w-full flex justify-center">
         <LnInvoice></LnInvoice>

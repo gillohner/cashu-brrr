@@ -162,10 +162,14 @@
       </div>
     {:else}
       <a href={"lightning:" + invoice} class="w-full flex justify-center">
-        <QRCodeImage text={invoice} /> 
+        <QRCodeImage text={invoice} />
       </a>
       <div class="flex items-center gap-2 w-full">
-        <input readonly class="input input-primary input-sm flex-1 text-xs" value={invoice} />
+        <input
+          readonly
+          class="input input-primary input-sm flex-1 text-xs"
+          value={invoice}
+        />
         <button
           class="btn btn-primary btn-sm btn-square"
           onclick={() => copyTextToClipboard(invoice)}

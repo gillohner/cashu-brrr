@@ -54,7 +54,7 @@
     const target = e.target as SVGElement;
     const svg = target.viewportElement;
     if (!svg) return;
-    
+
     const xml = new XMLSerializer().serializeToString(svg);
     const svg64 = btoa(xml);
     const a = document.createElement("a");

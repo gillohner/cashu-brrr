@@ -4,9 +4,9 @@
   import ComicNote from "./features/templates/comic/ComicNote.svelte";
   import Main from "./lib/Main.svelte";
   import { getAmountForTokenSet } from "./lib/utils";
-  
+
   const urlParams = window.location.hash.slice(1).split("/");
-  
+
   const token = $derived.by(() => {
     const tokenString = urlParams[0];
     try {
