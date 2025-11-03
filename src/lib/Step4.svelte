@@ -445,19 +445,59 @@
             
             unmount(backComponent);
           }
-        } else {
-          // For other templates, we'll use a simpler extraction
-          // This is a placeholder - you might want to implement similar logic for comic/custom
-          toast.error('PDF generation currently only supports Mountainlake template');
-          document.body.removeChild(container);
-          isGeneratingPdf = false;
-          return;
+        } else if (selectedTemplate === 'comic') {
+          // Render Comic note
+          const frontDiv = document.createElement('div');
+          container.appendChild(frontDiv);
+          
+          const frontComponent = mount(ComicNote, {
+            target: frontDiv,
+            props: {
+              denomination,
+              mintUrl: token.mint,
+              token: tokenString,
+              unit: $wallet?.unit,
+              design
+            }
+          });
+
+          await new Promise(resolve => setTimeout(resolve, 200));
+          
+          const extractedFront = extractSvgFromElement(frontDiv);
+          if (extractedFront) frontSvg = extractedFront;
+          
+          unmount(frontComponent);
+        } else if (selectedTemplate === 'custom') {
+          // Render Custom note
+          const frontDiv = document.createElement('div');
+          container.appendChild(frontDiv);
+          
+          const frontComponent = mount(CustomNote, {
+            target: frontDiv,
+            props: {
+              denomination,
+              mintUrl: token.mint,
+              token: tokenString,
+              unit: $wallet?.unit,
+              colorCode,
+              brandLogoURL,
+              cornerBrandLogoURL
+            }
+          });
+
+          await new Promise(resolve => setTimeout(resolve, 200));
+          
+          const extractedFront = extractSvgFromElement(frontDiv);
+          if (extractedFront) frontSvg = extractedFront;
+          
+          unmount(frontComponent);
         }
 
         notes.push({
           frontSvg,
           backSvg: backSvg || undefined,
           id: `note-${i}`,
+          rotation: selectedTemplate === 'mountainlake' ? 90 : 0, // Mountainlake is portrait (needs 90° rotation), Comic/Custom are landscape (no rotation)
         });
 
         container.innerHTML = '';
@@ -939,12 +979,14 @@
             </svg>
             <span><strong>3 notes per page</strong> stacked vertically (140mm × 80mm each)</span>
           </div>
-          <div class="flex items-start gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-success mt-0.5 flex-shrink-0">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-            </svg>
-            <span><strong>90° rotation</strong> - Long side uses full A4 width</span>
-          </div>
+          {#if selectedTemplate === 'mountainlake'}
+            <div class="flex items-start gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-success mt-0.5 flex-shrink-0">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+              </svg>
+              <span><strong>90° rotation</strong> - Long side uses full A4 width</span>
+            </div>
+          {/if}
           <div class="flex items-start gap-2">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-success mt-0.5 flex-shrink-0">
               <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
@@ -971,6 +1013,14 @@
               <span><strong>Double-sided printing enabled</strong> - Fronts and backs on consecutive pages</span>
             </div>
           {/if}
+          {#if selectedTemplate !== 'mountainlake'}
+            <div class="flex items-start gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-warning mt-0.5 flex-shrink-0">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+              </svg>
+              <span><strong>Note:</strong> {selectedTemplate === 'comic' ? 'Comic' : 'Custom'} template does not support backside design</span>
+            </div>
+          {/if}
         </div>
       </div>
     </div>
@@ -980,7 +1030,7 @@
       <button 
         class="btn btn-primary btn-lg w-full gap-2"
         onclick={generateAndDownloadPdf}
-        disabled={isGeneratingPdf || selectedTemplate !== 'mountainlake'}
+        disabled={isGeneratingPdf}
       >
         {#if isGeneratingPdf}
           <span class="loading loading-spinner"></span>
@@ -992,15 +1042,6 @@
           Generate Print-Ready PDF
         {/if}
       </button>
-      
-      {#if selectedTemplate !== 'mountainlake'}
-        <div class="alert alert-warning mt-3 text-sm">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-5 h-5">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-          </svg>
-          <span>PDF generation currently only supports <strong>Mountainlake</strong> template</span>
-        </div>
-      {/if}
     </div>
     
     <!-- Printing Instructions -->

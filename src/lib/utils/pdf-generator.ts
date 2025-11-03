@@ -4,6 +4,7 @@ export interface NoteData {
   frontSvg: string;
   backSvg?: string;
   id: string;
+  rotation?: number; // 0 for landscape (no rotation), 90 for portrait (rotate 90°)
 }
 
 // A4 Portrait constants - FIXED configuration
@@ -192,7 +193,7 @@ function drawCutMarks(pdf: jsPDF, x: number, y: number, width: number, height: n
 
 /**
  * Generate PDF with notes
- * Fixed layout: A4 Portrait, 3 notes per page, 90° rotation, 5mm bleed
+ * Fixed layout: A4 Portrait, 3 notes per page, optional rotation, 5mm bleed
  */
 export async function generatePdf(
   notes: NoteData[],
@@ -250,8 +251,9 @@ export async function generatePdf(
         // Draw cut marks
         drawCutMarks(pdf, x, y, rotatedNoteWidth, rotatedNoteHeight);
         
-        // Add front SVG with 90° rotation
-        await addSvgToPdf(pdf, note.frontSvg, x, y, noteWidth, noteHeight, 90);
+        // Add front SVG with rotation (90° for portrait notes, 0° for landscape)
+        const rotation = note.rotation ?? 90;
+        await addSvgToPdf(pdf, note.frontSvg, x, y, noteWidth, noteHeight, rotation);
         
         currentOperation++;
         if (onProgress) {
@@ -281,8 +283,9 @@ export async function generatePdf(
           // Draw cut marks
           drawCutMarks(pdf, x, y, rotatedNoteWidth, rotatedNoteHeight);
           
-          // Add back SVG with 90° rotation
-          await addSvgToPdf(pdf, note.backSvg, x, y, noteWidth, noteHeight, 90);
+          // Add back SVG with rotation (90° for portrait notes, 0° for landscape)
+          const rotation = note.rotation ?? 90;
+          await addSvgToPdf(pdf, note.backSvg, x, y, noteWidth, noteHeight, rotation);
           
           currentOperation++;
           if (onProgress) {
@@ -310,8 +313,9 @@ export async function generatePdf(
       // Draw cut marks
       drawCutMarks(pdf, x, y, rotatedNoteWidth, rotatedNoteHeight);
       
-      // Add SVG with 90° rotation
-      await addSvgToPdf(pdf, note.frontSvg, x, y, noteWidth, noteHeight, 90);
+      // Add SVG with rotation (90° for portrait notes, 0° for landscape)
+      const rotation = note.rotation ?? 90;
+      await addSvgToPdf(pdf, note.frontSvg, x, y, noteWidth, noteHeight, rotation);
       
       currentOperation++;
       if (onProgress) {
