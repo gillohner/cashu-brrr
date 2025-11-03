@@ -13,6 +13,9 @@
   import encodeQR from "qr";
   import JSZip from "jszip";
   import MountainlakeDesigner from "../components/ui/MountainlakeDesigner.svelte";
+  import { generatePdf, extractSvgFromElement, getPrintingInstructions, type NoteData } from "./utils/pdf-generator";
+  import { toast } from "svelte-sonner";
+  import { mount, unmount } from 'svelte';
 
   type ActiveTab = 'customize' | 'print' | 'share';
   type TemplateType = 'comic' | 'custom' | 'mountainlake';
@@ -257,6 +260,233 @@
     rotation?: number;
     opacity?: number;
   }>>([]);
+
+  // PDF Generation state
+  let isGeneratingPdf = $state(false);
+  let pdfProgress = $state({ current: 0, total: 0 });
+  let showPrintInstructions = $state(false);
+
+  /**
+   * Generate and download PDF with all notes
+   * Simplified version: A4 portrait, 3 notes per page, auto double-sided if backside enabled
+   */
+  const generateAndDownloadPdf = async () => {
+    isGeneratingPdf = true;
+    pdfProgress = { current: 0, total: $preparedTokens.length };
+
+    try {
+      // Create temporary container for rendering notes
+      const container = document.createElement('div');
+      container.style.position = 'absolute';
+      container.style.left = '-9999px';
+      container.style.top = '-9999px';
+      container.style.width = '200px';
+      container.style.height = '300px';
+      document.body.appendChild(container);
+
+      const notes: NoteData[] = [];
+
+      // Render each note and extract SVG
+      for (let i = 0; i < $preparedTokens.length; i++) {
+        const token = $preparedTokens[i];
+        const tokenString = getEncodedTokenV4(token);
+        const denomination = getAmountForTokenSet(token.proofs);
+
+        let frontSvg = '';
+        let backSvg = '';
+
+        if (selectedTemplate === 'mountainlake') {
+          // Render front side using Svelte 5 mount API
+          const frontDiv = document.createElement('div');
+          container.appendChild(frontDiv);
+          
+          const frontComponent = mount(MountainlakeNote, {
+            target: frontDiv,
+            props: {
+              denomination,
+              mintUrl: token.mint,
+              token: tokenString,
+              unit: $wallet?.unit,
+              enableTopLeftIcon: frontDesign.enableTopLeftIcon,
+              enableHeaderText: frontDesign.enableHeaderText,
+              enableQrCode: frontDesign.enableQrCode,
+              enableDenomination: frontDesign.enableDenomination,
+              topLeftIcon: frontDesign.topLeftIcon,
+              customLogoUrl: frontDesign.customLogoUrl,
+              topLeftIconColor: frontDesign.topLeftIconColor,
+              enableIconColorOverride: frontDesign.enableIconColorOverride,
+              topLeftIconSize: frontDesign.topLeftIconSize,
+              topLeftIconX: frontDesign.topLeftIconX,
+              topLeftIconY: frontDesign.topLeftIconY,
+              topLeftIconOpacity: frontDesign.topLeftIconOpacity,
+              headerText: frontDesign.headerText,
+              headerTextColor: frontDesign.headerTextColor,
+              headerTextX: frontDesign.headerTextX,
+              headerTextY: frontDesign.headerTextY,
+              bgGradientType: frontDesign.bgGradientType,
+              bgSolidColor: frontDesign.bgSolidColor,
+              gradientType: frontDesign.gradientType,
+              gradientStops: frontDesign.gradientStops,
+              gradientAngle: frontDesign.gradientAngle,
+              radialCenterX: frontDesign.radialCenterX,
+              radialCenterY: frontDesign.radialCenterY,
+              qrGradientType: frontDesign.qrGradientType,
+              qrGradientAngle: frontDesign.qrGradientAngle,
+              qrGradientStops: frontDesign.qrGradientStops,
+              qrCodeColor: frontDesign.qrCodeColor,
+              qrBackgroundColor: frontDesign.qrBackgroundColor,
+              qrBorderColor: frontDesign.qrBorderColor,
+              disableQrBorder: frontDesign.disableQrBorder,
+              disableQrBackground: frontDesign.disableQrBackground,
+              qrX: frontDesign.qrX,
+              qrY: frontDesign.qrY,
+              qrSize: frontDesign.qrSize,
+              denominationColor: frontDesign.denominationColor,
+              bottomBoxColor: frontDesign.bottomBoxColor,
+              bottomTextColor: frontDesign.bottomTextColor,
+              customBottomText: frontDesign.customBottomText,
+              denominationX: frontDesign.denominationX,
+              denominationY: frontDesign.denominationY,
+              customImages: frontDesign.customImages,
+              enableGuideText: frontDesign.enableGuideText,
+              guideText: frontDesign.guideText,
+              guideTextColor: frontDesign.guideTextColor,
+              guideBackgroundColor: frontDesign.guideBackgroundColor,
+              guideBorderColor: frontDesign.guideBorderColor,
+              disableGuideBorder: frontDesign.disableGuideBorder,
+              disableGuideBackground: frontDesign.disableGuideBackground,
+              guideX: frontDesign.guideX,
+              guideY: frontDesign.guideY,
+              guideWidth: frontDesign.guideWidth,
+              guideHeight: frontDesign.guideHeight,
+            }
+          });
+
+          // Wait for component to render
+          await new Promise(resolve => setTimeout(resolve, 200));
+          
+          const extractedFront = extractSvgFromElement(frontDiv);
+          if (extractedFront) frontSvg = extractedFront;
+          
+          // Unmount component using Svelte 5 API
+          unmount(frontComponent);
+
+          // Render back side if enabled
+          if (enableBackside) {
+            const backDiv = document.createElement('div');
+            container.appendChild(backDiv);
+            
+            const backComponent = mount(MountainlakeNote, {
+              target: backDiv,
+              props: {
+                denomination,
+                mintUrl: token.mint,
+                token: tokenString,
+                unit: $wallet?.unit,
+                enableTopLeftIcon: backDesign.enableTopLeftIcon,
+                enableHeaderText: backDesign.enableHeaderText,
+                enableQrCode: backDesign.enableQrCode,
+                enableDenomination: backDesign.enableDenomination,
+                topLeftIcon: backDesign.topLeftIcon,
+                customLogoUrl: backDesign.customLogoUrl,
+                topLeftIconColor: backDesign.topLeftIconColor,
+                enableIconColorOverride: backDesign.enableIconColorOverride,
+                topLeftIconSize: backDesign.topLeftIconSize,
+                topLeftIconX: backDesign.topLeftIconX,
+                topLeftIconY: backDesign.topLeftIconY,
+                topLeftIconOpacity: backDesign.topLeftIconOpacity,
+                headerText: backDesign.headerText,
+                headerTextColor: backDesign.headerTextColor,
+                headerTextX: backDesign.headerTextX,
+                headerTextY: backDesign.headerTextY,
+                bgGradientType: backDesign.bgGradientType,
+                bgSolidColor: backDesign.bgSolidColor,
+                gradientType: backDesign.gradientType,
+                gradientStops: backDesign.gradientStops,
+                gradientAngle: backDesign.gradientAngle,
+                radialCenterX: backDesign.radialCenterX,
+                radialCenterY: backDesign.radialCenterY,
+                qrGradientType: backDesign.qrGradientType,
+                qrGradientAngle: backDesign.qrGradientAngle,
+                qrGradientStops: backDesign.qrGradientStops,
+                qrCodeColor: backDesign.qrCodeColor,
+                qrBackgroundColor: backDesign.qrBackgroundColor,
+                qrBorderColor: backDesign.qrBorderColor,
+                disableQrBorder: backDesign.disableQrBorder,
+                disableQrBackground: backDesign.disableQrBackground,
+                qrX: backDesign.qrX,
+                qrY: backDesign.qrY,
+                qrSize: backDesign.qrSize,
+                denominationColor: backDesign.denominationColor,
+                bottomBoxColor: backDesign.bottomBoxColor,
+                bottomTextColor: backDesign.bottomTextColor,
+                customBottomText: backDesign.customBottomText,
+                denominationX: backDesign.denominationX,
+                denominationY: backDesign.denominationY,
+                customImages: backDesign.customImages,
+                enableGuideText: backDesign.enableGuideText,
+                guideText: backDesign.guideText,
+                guideTextColor: backDesign.guideTextColor,
+                guideBackgroundColor: backDesign.guideBackgroundColor,
+                guideBorderColor: backDesign.guideBorderColor,
+                disableGuideBorder: backDesign.disableGuideBorder,
+                disableGuideBackground: backDesign.disableGuideBackground,
+                guideX: backDesign.guideX,
+                guideY: backDesign.guideY,
+                guideWidth: backDesign.guideWidth,
+                guideHeight: backDesign.guideHeight,
+              }
+            });
+
+            await new Promise(resolve => setTimeout(resolve, 200));
+            
+            const extractedBack = extractSvgFromElement(backDiv);
+            if (extractedBack) backSvg = extractedBack;
+            
+            unmount(backComponent);
+          }
+        } else {
+          // For other templates, we'll use a simpler extraction
+          // This is a placeholder - you might want to implement similar logic for comic/custom
+          toast.error('PDF generation currently only supports Mountainlake template');
+          document.body.removeChild(container);
+          isGeneratingPdf = false;
+          return;
+        }
+
+        notes.push({
+          frontSvg,
+          backSvg: backSvg || undefined,
+          id: `note-${i}`,
+        });
+
+        container.innerHTML = '';
+      }
+
+      // Clean up container
+      document.body.removeChild(container);
+
+      // Generate PDF (auto double-sided if backside enabled)
+      const pdf = await generatePdf(notes, enableBackside, (current, total) => {
+        pdfProgress = { current, total };
+      });
+
+      // Download PDF
+      const dateStr = new Date().toISOString().split('T')[0];
+      const sideStr = enableBackside ? 'double-sided' : 'single-sided';
+      const fileName = `cashu_notes_${sideStr}_${$preparedTokens.length}_${dateStr}.pdf`;
+      pdf.save(fileName);
+
+      toast.success(`PDF generated successfully! ${$preparedTokens.length} notes`);
+      showPrintInstructions = true;
+    } catch (error) {
+      console.error('PDF generation failed:', error);
+      toast.error('Failed to generate PDF: ' + (error instanceof Error ? error.message : 'Unknown error'));
+    } finally {
+      isGeneratingPdf = false;
+      pdfProgress = { current: 0, total: 0 };
+    }
+  };
 
   /**
    * Handle brand logo file upload
@@ -686,74 +916,204 @@
     </div>
   </div>
 {:else if active === 'print'}
-  <div class="flex flex-col items-center gap-3 mb-4">
-    <button class="btn btn-primary btn-sm" onclick={()=> window.print()}>
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0 1 10.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0 .229 2.523a1.125 1.125 0 0 1-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0 0 21 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 0 0-1.913-.247M6.34 18H5.25A2.25 2.25 0 0 1 3 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 0 1 1.913-.247m10.5 0a48.536 48.536 0 0 0-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5Zm-3 0h.008v.008H15V10.5Z" />
-      </svg>
-      Print
-    </button>
-    <p class="text-sm opacity-70">Press <kbd class="kbd kbd-sm">Ctrl</kbd>+<kbd class="kbd kbd-sm">P</kbd> to print</p>
-  </div>
-  
-  <div class="bg-white overflow-x-auto max-w-full flex flex-col items-center">
-    {#each $preparedTokens as token}
-      {#if selectedTemplate==="comic"}
-        <ComicNote
-          {design}
-          denomination={getAmountForTokenSet(token.proofs)}
-          mintUrl={token.mint}
-          token={getEncodedTokenV4(token)}
-          unit={$wallet?.unit}
-        />
-      {:else if selectedTemplate === "custom"}
-        <CustomNote
-          {brandLogoURL}
-          {colorCode}
-          {cornerBrandLogoURL}
-          denomination={getAmountForTokenSet(token.proofs)}
-          mintUrl={token.mint}
-          token={getEncodedTokenV4(token)}
-          unit={$wallet?.unit}
-        />
-      {:else if selectedTemplate === "mountainlake"}
-        <MountainlakeNote
-          denomination={getAmountForTokenSet(token.proofs)}
-          mintUrl={token.mint}
-          token={getEncodedTokenV4(token)}
-          {topLeftIcon}
-          {customLogoUrl}
-          {topLeftIconColor}
-          {enableIconColorOverride}
-          {topLeftIconSize}
-          {topLeftIconX}
-          {topLeftIconY}
-          {topLeftIconOpacity}
-          {headerText}
-          {headerTextColor}
-          {bgGradientType}
-          {bgSolidColor}
-          {gradientType}
-          {gradientStops}
-          {gradientAngle}
-          {radialCenterX}
-          {radialCenterY}
-          {qrGradientType}
-          {qrGradientAngle}
-          {qrGradientStops}
-          {qrCodeColor}
-          {qrBackgroundColor}
-          {qrBorderColor}
-          {disableQrBorder}
-          {disableQrBackground}
-          {denominationColor}
-          {bottomBoxColor}
-          {bottomTextColor}
-          {customBottomText}
-          {customLayers}
-        />
+  <div class="flex flex-col items-center gap-6 max-w-5xl mx-auto w-full px-4">
+    <!-- PDF Info Card -->
+    <div class="card bg-base-200 w-full max-w-2xl">
+      <div class="card-body">
+        <h3 class="card-title text-lg">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0 1 10.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0 .229 2.523a1.125 1.125 0 0 1-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0 0 21 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 0 0-1.913-.247M6.34 18H5.25A2.25 2.25 0 0 1 3 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 0 1 1.913-.247m10.5 0a48.536 48.536 0 0 0-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5Zm-3 0h.008v.008H15V10.5Z" />
+          </svg>
+          Print-Ready PDF Generator
+        </h3>
+        <div class="space-y-2 text-sm">
+          <div class="flex items-start gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-success mt-0.5 flex-shrink-0">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+            </svg>
+            <span><strong>A4 Portrait format</strong> - Industry standard</span>
+          </div>
+          <div class="flex items-start gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-success mt-0.5 flex-shrink-0">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+            </svg>
+            <span><strong>3 notes per page</strong> stacked vertically (140mm × 80mm each)</span>
+          </div>
+          <div class="flex items-start gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-success mt-0.5 flex-shrink-0">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+            </svg>
+            <span><strong>90° rotation</strong> - Long side uses full A4 width</span>
+          </div>
+          <div class="flex items-start gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-success mt-0.5 flex-shrink-0">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+            </svg>
+            <span><strong>5mm bleed</strong> on sides and between notes for easy cutting</span>
+          </div>
+          <div class="flex items-start gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-success mt-0.5 flex-shrink-0">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+            </svg>
+            <span><strong>Corner cut marks</strong> for precise cutting guides</span>
+          </div>
+          <div class="flex items-start gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-success mt-0.5 flex-shrink-0">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+            </svg>
+            <span><strong>Maximum quality</strong> (4× resolution for crisp text)</span>
+          </div>
+          {#if enableBackside}
+            <div class="flex items-start gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-info mt-0.5 flex-shrink-0">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M11.35 3.836c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m8.9-4.414c.376.023.75.05 1.124.08 1.131.094 1.976 1.057 1.976 2.192V16.5A2.25 2.25 0 0 1 18 18.75h-2.25m-7.5-10.5H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V18.75m-7.5-10.5h6.375c.621 0 1.125.504 1.125 1.125v9.25m-12 0A2.25 2.25 0 0 0 4.5 19.5h15a2.25 2.25 0 0 0 2.25-2.25m-18 0v-7.5A2.25 2.25 0 0 1 4.5 7.5h15a2.25 2.25 0 0 1 2.25 2.25v7.5" />
+              </svg>
+              <span><strong>Double-sided printing enabled</strong> - Fronts and backs on consecutive pages</span>
+            </div>
+          {/if}
+        </div>
+      </div>
+    </div>
+    
+    <!-- Generation Button -->
+    <div class="w-full max-w-md">
+      <button 
+        class="btn btn-primary btn-lg w-full gap-2"
+        onclick={generateAndDownloadPdf}
+        disabled={isGeneratingPdf || selectedTemplate !== 'mountainlake'}
+      >
+        {#if isGeneratingPdf}
+          <span class="loading loading-spinner"></span>
+          Generating PDF... {pdfProgress.current}/{pdfProgress.total}
+        {:else}
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+          </svg>
+          Generate Print-Ready PDF
+        {/if}
+      </button>
+      
+      {#if selectedTemplate !== 'mountainlake'}
+        <div class="alert alert-warning mt-3 text-sm">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-5 h-5">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+          </svg>
+          <span>PDF generation currently only supports <strong>Mountainlake</strong> template</span>
+        </div>
       {/if}
-    {/each}
+    </div>
+    
+    <!-- Printing Instructions -->
+    {#if showPrintInstructions}
+      <div class="card bg-base-100 w-full max-w-2xl border border-primary">
+        <div class="card-body">
+          <div class="flex items-center justify-between">
+            <h3 class="card-title text-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
+              </svg>
+              Printing Instructions
+            </h3>
+            <button class="btn btn-ghost btn-sm btn-circle" onclick={() => showPrintInstructions = false} aria-label="Close instructions">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <div class="whitespace-pre-wrap text-sm font-mono bg-base-200 p-4 rounded-lg mt-2">
+            {getPrintingInstructions(enableBackside)}
+          </div>
+        </div>
+      </div>
+    {/if}
+    
+    <!-- Divider -->
+    <div class="divider w-full max-w-md">OR</div>
+    
+    <!-- Legacy Browser Print Option -->
+    <div class="w-full max-w-md">
+      <div class="text-center mb-3">
+        <h4 class="font-semibold text-sm">Browser Print (Legacy)</h4>
+        <p class="text-xs opacity-70">Simple print without professional features</p>
+      </div>
+      <button class="btn btn-outline btn-sm w-full" onclick={()=> window.print()}>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0 1 10.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0 .229 2.523a1.125 1.125 0 0 1-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0 0 21 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 0 0-1.913-.247M6.34 18H5.25A2.25 2.25 0 0 1 3 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 0 1 1.913-.247m10.5 0a48.536 48.536 0 0 0-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5Zm-3 0h.008v.008H15V10.5Z" />
+        </svg>
+        Use Browser Print (Ctrl+P)
+      </button>
+    </div>
+    
+    <!-- Preview Section (hidden by default, shown on hover/expand) -->
+    <details class="collapse collapse-arrow bg-base-200 w-full max-w-4xl">
+      <summary class="collapse-title text-sm font-medium">
+        Preview Notes ({$preparedTokens.length} notes)
+      </summary>
+      <div class="collapse-content">
+        <div class="bg-white overflow-x-auto max-w-full flex flex-col items-center gap-4 p-4">
+          {#each $preparedTokens.slice(0, 5) as token}
+            {#if selectedTemplate==="comic"}
+              <ComicNote
+                {design}
+                denomination={getAmountForTokenSet(token.proofs)}
+                mintUrl={token.mint}
+                token={getEncodedTokenV4(token)}
+                unit={$wallet?.unit}
+              />
+            {:else if selectedTemplate === "custom"}
+              <CustomNote
+                {brandLogoURL}
+                {colorCode}
+                {cornerBrandLogoURL}
+                denomination={getAmountForTokenSet(token.proofs)}
+                mintUrl={token.mint}
+                token={getEncodedTokenV4(token)}
+                unit={$wallet?.unit}
+              />
+            {:else if selectedTemplate === "mountainlake"}
+              <MountainlakeNote
+                denomination={getAmountForTokenSet(token.proofs)}
+                mintUrl={token.mint}
+                token={getEncodedTokenV4(token)}
+                {topLeftIcon}
+                {customLogoUrl}
+                {topLeftIconColor}
+                {enableIconColorOverride}
+                {topLeftIconSize}
+                {topLeftIconX}
+                {topLeftIconY}
+                {topLeftIconOpacity}
+                {headerText}
+                {headerTextColor}
+                {bgGradientType}
+                {bgSolidColor}
+                {gradientType}
+                {gradientStops}
+                {gradientAngle}
+                {radialCenterX}
+                {radialCenterY}
+                {qrGradientType}
+                {qrGradientAngle}
+                {qrGradientStops}
+                {qrCodeColor}
+                {qrBackgroundColor}
+                {qrBorderColor}
+                {disableQrBorder}
+                {disableQrBackground}
+                {denominationColor}
+                {bottomBoxColor}
+                {bottomTextColor}
+                {customBottomText}
+                {customLayers}
+              />
+            {/if}
+          {/each}
+          {#if $preparedTokens.length > 5}
+            <div class="text-sm opacity-70">...and {$preparedTokens.length - 5} more notes</div>
+          {/if}
+        </div>
+      </div>
+    </details>
   </div>
     
 {:else if active === 'share'}

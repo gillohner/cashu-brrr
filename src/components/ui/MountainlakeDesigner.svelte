@@ -813,129 +813,6 @@
     </div>
   </div>
 
-  <!-- Custom Images Section -->
-  <div class="collapse collapse-arrow bg-base-100">
-    <input type="checkbox" checked />
-    <div class="collapse-title text-sm font-medium">Custom Images</div>
-    <div class="collapse-content space-y-3">
-      <div class="text-xs opacity-60 mb-2">Upload and position custom images on your note</div>
-      
-      {#each customImages as image, i (image.id)}
-        <div class="border border-base-300 rounded-lg p-3 space-y-2">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-medium">Image {i + 1}</span>
-            <button 
-              class="btn btn-xs btn-ghost text-error"
-              onclick={() => {
-                customImages = customImages.filter(img => img.id !== image.id);
-              }}
-            >
-              Remove
-            </button>
-          </div>
-          
-          <div class="grid grid-cols-2 gap-2">
-            <label class="form-control">
-              <div class="label pb-1">
-                <span class="label-text text-xs">X: {image.x}px</span>
-              </div>
-              <input 
-                type="range" 
-                min="0" 
-                max="160" 
-                bind:value={image.x} 
-                class="range range-xs range-primary"
-              />
-            </label>
-            
-            <label class="form-control">
-              <div class="label pb-1">
-                <span class="label-text text-xs">Y: {image.y}px</span>
-              </div>
-              <input 
-                type="range" 
-                min="0" 
-                max="280" 
-                bind:value={image.y} 
-                class="range range-xs range-primary"
-              />
-            </label>
-          </div>
-          
-          <div class="grid grid-cols-2 gap-2">
-            <label class="form-control">
-              <div class="label pb-1">
-                <span class="label-text text-xs">Width: {image.width}px</span>
-              </div>
-              <input 
-                type="range" 
-                min="10" 
-                max="160" 
-                bind:value={image.width} 
-                class="range range-xs range-primary"
-              />
-            </label>
-            
-            <label class="form-control">
-              <div class="label pb-1">
-                <span class="label-text text-xs">Height: {image.height}px</span>
-              </div>
-              <input 
-                type="range" 
-                min="10" 
-                max="280" 
-                bind:value={image.height} 
-                class="range range-xs range-primary"
-              />
-            </label>
-          </div>
-          
-          <label class="form-control">
-            <div class="label pb-1">
-              <span class="label-text text-xs">Opacity: {image.opacity}%</span>
-            </div>
-            <input 
-              type="range" 
-              min="0" 
-              max="100" 
-              bind:value={image.opacity} 
-              class="range range-xs range-primary"
-            />
-          </label>
-        </div>
-      {/each}
-      
-      <label class="btn btn-sm btn-outline w-full">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-        </svg>
-        Add Image
-        <input 
-          type="file" 
-          class="hidden"
-          accept="image/*"
-          oninput={(e) => {
-            const target = e.target as HTMLInputElement;
-            if (target.files && target.files[0]) {
-              const url = URL.createObjectURL(target.files[0]);
-              const id = crypto.randomUUID();
-              customImages = [...customImages, {
-                id,
-                url,
-                x: 10,
-                y: 10,
-                width: 50,
-                height: 50,
-                opacity: 100
-              }];
-              target.value = '';
-            }
-          }}
-        />
-      </label>
-    </div>
-  </div>
-
   <!-- Guide Text Section -->
   <div class="collapse collapse-arrow bg-base-100">
     <input type="checkbox" checked />
@@ -1076,6 +953,129 @@
           </label>
         </div>
       {/if}
+    </div>
+  </div>
+
+    <!-- Custom Images Section -->
+  <div class="collapse collapse-arrow bg-base-100">
+    <input type="checkbox" checked />
+    <div class="collapse-title text-sm font-medium">Custom Images</div>
+    <div class="collapse-content space-y-3">
+      <div class="text-xs opacity-60 mb-2">Upload and position custom images on your note</div>
+      
+      {#each customImages as image, i (image.id)}
+        <div class="border border-base-300 rounded-lg p-3 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-medium">Image {i + 1}</span>
+            <button 
+              class="btn btn-xs btn-ghost text-error"
+              onclick={() => {
+                customImages = customImages.filter(img => img.id !== image.id);
+              }}
+            >
+              Remove
+            </button>
+          </div>
+          
+          <div class="grid grid-cols-2 gap-2">
+            <label class="form-control">
+              <div class="label pb-1">
+                <span class="label-text text-xs">X: {image.x}px</span>
+              </div>
+              <input 
+                type="range" 
+                min="0" 
+                max="160" 
+                bind:value={image.x} 
+                class="range range-xs range-primary"
+              />
+            </label>
+            
+            <label class="form-control">
+              <div class="label pb-1">
+                <span class="label-text text-xs">Y: {image.y}px</span>
+              </div>
+              <input 
+                type="range" 
+                min="0" 
+                max="280" 
+                bind:value={image.y} 
+                class="range range-xs range-primary"
+              />
+            </label>
+          </div>
+          
+          <div class="grid grid-cols-2 gap-2">
+            <label class="form-control">
+              <div class="label pb-1">
+                <span class="label-text text-xs">Width: {image.width}px</span>
+              </div>
+              <input 
+                type="range" 
+                min="10" 
+                max="160" 
+                bind:value={image.width} 
+                class="range range-xs range-primary"
+              />
+            </label>
+            
+            <label class="form-control">
+              <div class="label pb-1">
+                <span class="label-text text-xs">Height: {image.height}px</span>
+              </div>
+              <input 
+                type="range" 
+                min="10" 
+                max="280" 
+                bind:value={image.height} 
+                class="range range-xs range-primary"
+              />
+            </label>
+          </div>
+          
+          <label class="form-control">
+            <div class="label pb-1">
+              <span class="label-text text-xs">Opacity: {image.opacity}%</span>
+            </div>
+            <input 
+              type="range" 
+              min="0" 
+              max="100" 
+              bind:value={image.opacity} 
+              class="range range-xs range-primary"
+            />
+          </label>
+        </div>
+      {/each}
+      
+      <label class="btn btn-sm btn-outline w-full">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+        </svg>
+        Add Image
+        <input 
+          type="file" 
+          class="hidden"
+          accept="image/*"
+          oninput={(e) => {
+            const target = e.target as HTMLInputElement;
+            if (target.files && target.files[0]) {
+              const url = URL.createObjectURL(target.files[0]);
+              const id = crypto.randomUUID();
+              customImages = [...customImages, {
+                id,
+                url,
+                x: 10,
+                y: 10,
+                width: 50,
+                height: 50,
+                opacity: 100
+              }];
+              target.value = '';
+            }
+          }}
+        />
+      </label>
     </div>
   </div>
 </div>
