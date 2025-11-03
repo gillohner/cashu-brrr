@@ -313,6 +313,42 @@ export const PRESET_TEMPLATES: MountainlakeTemplate[] = [
       guideBorderColor: "#DC2626",
     }
   },
+  {
+    name: "Light Monochrome",
+    description: "White background with dark gray accents for minimal ink usage",
+    author: "Cashu BRRR",
+    version: "1.0",
+    createdAt: new Date().toISOString(),
+    front: {
+      ...DEFAULT_MOUNTAINLAKE_CONFIG,
+      bgGradientType: 'solid',
+      bgSolidColor: "#FFFFFF",
+      headerTextColor: "#111827",
+      qrBackgroundColor: "#FFFFFF",
+      qrBorderColor: "#FFFFFF",
+      disableQrBorder: true,
+      disableQrBackground: true,
+      qrCodeColor: "#000000",
+      denominationColor: "#374151",
+      bottomBoxColor: "#E5E7EB",
+      bottomTextColor: "#374151",
+      enableTopLeftIcon: false,
+      customBottomText: `{MINT}\nADD YOUR OWN TEXT`,
+    },
+    back: {
+      ...DEFAULT_MOUNTAINLAKE_CONFIG,
+      bgGradientType: 'solid',
+      bgSolidColor: "#FFFFFF",
+      headerTextColor: "#111827",
+      enableQrCode: false,
+      enableDenomination: false,
+      enableGuideText: true,
+      guideBackgroundColor: "#F3F4F6",
+      guideBorderColor: "#111827",
+      guideTextColor: "#111827",
+      headerText: "Ecash Bearer Note\nPrivacy • Freedom\nSelf Custody",
+    }
+  },
 ];
 
 /**

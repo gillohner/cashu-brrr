@@ -239,7 +239,7 @@
   let headerTextColor = $state("#FFFFFF");
 
   // Collapsible sections state
-  let bgSectionOpen = $state(true);
+  let bgSectionOpen = $state(false);
   let topLeftSectionOpen = $state(false);
   let topRightSectionOpen = $state(false);
   let qrSectionOpen = $state(false);
@@ -908,8 +908,8 @@
       </div>
 
       <!-- Right: Live Preview -->
-      <div class="flex justify-center items-start sticky top-4">
-        <div class="bg-base-200 rounded-lg p-4">
+      <div class="flex justify-center items-start self-start">
+        <div class="bg-base-200 rounded-lg p-4 lg:sticky lg:top-2">
           <h4 class="text-sm font-semibold mb-3 text-center">Preview</h4>
           {#if selectedTemplate === "comic"}
             <ComicNote
@@ -935,65 +935,129 @@
               unit={$preparedTokens[0]?.unit ?? "sat"}
             />
           {:else if selectedTemplate === "mountainlake"}
+            <!-- Front preview -->
             <MountainlakeNote
               denomination={getAmountForTokenSet(
                 $preparedTokens[0]?.proofs ?? [],
               )}
               mintUrl={$wallet?.mint.mintUrl}
               token={"blabla"}
-              enableTopLeftIcon={currentDesign.enableTopLeftIcon}
-              enableHeaderText={currentDesign.enableHeaderText}
-              enableQrCode={currentDesign.enableQrCode}
-              enableDenomination={currentDesign.enableDenomination}
-              topLeftIcon={currentDesign.topLeftIcon}
-              customLogoUrl={currentDesign.customLogoUrl}
-              topLeftIconColor={currentDesign.topLeftIconColor}
-              enableIconColorOverride={currentDesign.enableIconColorOverride}
-              topLeftIconSize={currentDesign.topLeftIconSize}
-              topLeftIconX={currentDesign.topLeftIconX}
-              topLeftIconY={currentDesign.topLeftIconY}
-              topLeftIconOpacity={currentDesign.topLeftIconOpacity}
-              headerText={currentDesign.headerText}
-              headerTextColor={currentDesign.headerTextColor}
-              headerTextX={currentDesign.headerTextX}
-              headerTextY={currentDesign.headerTextY}
-              bgGradientType={currentDesign.bgGradientType}
-              bgSolidColor={currentDesign.bgSolidColor}
-              gradientType={currentDesign.gradientType}
-              gradientStops={currentDesign.gradientStops}
-              gradientAngle={currentDesign.gradientAngle}
-              radialCenterX={currentDesign.radialCenterX}
-              radialCenterY={currentDesign.radialCenterY}
-              qrGradientType={currentDesign.qrGradientType}
-              qrGradientAngle={currentDesign.qrGradientAngle}
-              qrGradientStops={currentDesign.qrGradientStops}
-              qrCodeColor={currentDesign.qrCodeColor}
-              qrBackgroundColor={currentDesign.qrBackgroundColor}
-              qrBorderColor={currentDesign.qrBorderColor}
-              disableQrBorder={currentDesign.disableQrBorder}
-              disableQrBackground={currentDesign.disableQrBackground}
-              qrX={currentDesign.qrX}
-              qrY={currentDesign.qrY}
-              qrSize={currentDesign.qrSize}
-              denominationColor={currentDesign.denominationColor}
-              bottomBoxColor={currentDesign.bottomBoxColor}
-              bottomTextColor={currentDesign.bottomTextColor}
-              customBottomText={currentDesign.customBottomText}
-              denominationX={currentDesign.denominationX}
-              denominationY={currentDesign.denominationY}
-              customImages={currentDesign.customImages}
-              enableGuideText={currentDesign.enableGuideText}
-              guideText={currentDesign.guideText}
-              guideTextColor={currentDesign.guideTextColor}
-              guideBackgroundColor={currentDesign.guideBackgroundColor}
-              guideBorderColor={currentDesign.guideBorderColor}
-              disableGuideBorder={currentDesign.disableGuideBorder}
-              disableGuideBackground={currentDesign.disableGuideBackground}
-              guideX={currentDesign.guideX}
-              guideY={currentDesign.guideY}
-              guideWidth={currentDesign.guideWidth}
-              guideHeight={currentDesign.guideHeight}
+              enableTopLeftIcon={frontDesign.enableTopLeftIcon}
+              enableHeaderText={frontDesign.enableHeaderText}
+              enableQrCode={frontDesign.enableQrCode}
+              enableDenomination={frontDesign.enableDenomination}
+              topLeftIcon={frontDesign.topLeftIcon}
+              customLogoUrl={frontDesign.customLogoUrl}
+              topLeftIconColor={frontDesign.topLeftIconColor}
+              enableIconColorOverride={frontDesign.enableIconColorOverride}
+              topLeftIconSize={frontDesign.topLeftIconSize}
+              topLeftIconX={frontDesign.topLeftIconX}
+              topLeftIconY={frontDesign.topLeftIconY}
+              topLeftIconOpacity={frontDesign.topLeftIconOpacity}
+              headerText={frontDesign.headerText}
+              headerTextColor={frontDesign.headerTextColor}
+              headerTextX={frontDesign.headerTextX}
+              headerTextY={frontDesign.headerTextY}
+              bgGradientType={frontDesign.bgGradientType}
+              bgSolidColor={frontDesign.bgSolidColor}
+              gradientType={frontDesign.gradientType}
+              gradientStops={frontDesign.gradientStops}
+              gradientAngle={frontDesign.gradientAngle}
+              radialCenterX={frontDesign.radialCenterX}
+              radialCenterY={frontDesign.radialCenterY}
+              qrGradientType={frontDesign.qrGradientType}
+              qrGradientAngle={frontDesign.qrGradientAngle}
+              qrGradientStops={frontDesign.qrGradientStops}
+              qrCodeColor={frontDesign.qrCodeColor}
+              qrBackgroundColor={frontDesign.qrBackgroundColor}
+              qrBorderColor={frontDesign.qrBorderColor}
+              disableQrBorder={frontDesign.disableQrBorder}
+              disableQrBackground={frontDesign.disableQrBackground}
+              qrX={frontDesign.qrX}
+              qrY={frontDesign.qrY}
+              qrSize={frontDesign.qrSize}
+              denominationColor={frontDesign.denominationColor}
+              bottomBoxColor={frontDesign.bottomBoxColor}
+              bottomTextColor={frontDesign.bottomTextColor}
+              customBottomText={frontDesign.customBottomText}
+              denominationX={frontDesign.denominationX}
+              denominationY={frontDesign.denominationY}
+              customImages={frontDesign.customImages}
+              enableGuideText={frontDesign.enableGuideText}
+              guideText={frontDesign.guideText}
+              guideTextColor={frontDesign.guideTextColor}
+              guideBackgroundColor={frontDesign.guideBackgroundColor}
+              guideBorderColor={frontDesign.guideBorderColor}
+              disableGuideBorder={frontDesign.disableGuideBorder}
+              disableGuideBackground={frontDesign.disableGuideBackground}
+              guideX={frontDesign.guideX}
+              guideY={frontDesign.guideY}
+              guideWidth={frontDesign.guideWidth}
+              guideHeight={frontDesign.guideHeight}
             />
+            {#if enableBackside}
+              <div class="divider my-2"></div>
+              <!-- Back preview below -->
+              <MountainlakeNote
+                denomination={getAmountForTokenSet(
+                  $preparedTokens[0]?.proofs ?? [],
+                )}
+                mintUrl={$wallet?.mint.mintUrl}
+                token={"blabla"}
+                enableTopLeftIcon={backDesign.enableTopLeftIcon}
+                enableHeaderText={backDesign.enableHeaderText}
+                enableQrCode={backDesign.enableQrCode}
+                enableDenomination={backDesign.enableDenomination}
+                topLeftIcon={backDesign.topLeftIcon}
+                customLogoUrl={backDesign.customLogoUrl}
+                topLeftIconColor={backDesign.topLeftIconColor}
+                enableIconColorOverride={backDesign.enableIconColorOverride}
+                topLeftIconSize={backDesign.topLeftIconSize}
+                topLeftIconX={backDesign.topLeftIconX}
+                topLeftIconY={backDesign.topLeftIconY}
+                topLeftIconOpacity={backDesign.topLeftIconOpacity}
+                headerText={backDesign.headerText}
+                headerTextColor={backDesign.headerTextColor}
+                headerTextX={backDesign.headerTextX}
+                headerTextY={backDesign.headerTextY}
+                bgGradientType={backDesign.bgGradientType}
+                bgSolidColor={backDesign.bgSolidColor}
+                gradientType={backDesign.gradientType}
+                gradientStops={backDesign.gradientStops}
+                gradientAngle={backDesign.gradientAngle}
+                radialCenterX={backDesign.radialCenterX}
+                radialCenterY={backDesign.radialCenterY}
+                qrGradientType={backDesign.qrGradientType}
+                qrGradientAngle={backDesign.qrGradientAngle}
+                qrGradientStops={backDesign.qrGradientStops}
+                qrCodeColor={backDesign.qrCodeColor}
+                qrBackgroundColor={backDesign.qrBackgroundColor}
+                qrBorderColor={backDesign.qrBorderColor}
+                disableQrBorder={backDesign.disableQrBorder}
+                disableQrBackground={backDesign.disableQrBackground}
+                qrX={backDesign.qrX}
+                qrY={backDesign.qrY}
+                qrSize={backDesign.qrSize}
+                denominationColor={backDesign.denominationColor}
+                bottomBoxColor={backDesign.bottomBoxColor}
+                bottomTextColor={backDesign.bottomTextColor}
+                customBottomText={backDesign.customBottomText}
+                denominationX={backDesign.denominationX}
+                denominationY={backDesign.denominationY}
+                customImages={backDesign.customImages}
+                enableGuideText={backDesign.enableGuideText}
+                guideText={backDesign.guideText}
+                guideTextColor={backDesign.guideTextColor}
+                guideBackgroundColor={backDesign.guideBackgroundColor}
+                guideBorderColor={backDesign.guideBorderColor}
+                disableGuideBorder={backDesign.disableGuideBorder}
+                disableGuideBackground={backDesign.disableGuideBackground}
+                guideX={backDesign.guideX}
+                guideY={backDesign.guideY}
+                guideWidth={backDesign.guideWidth}
+                guideHeight={backDesign.guideHeight}
+              />
+            {/if}
           {/if}
         </div>
       </div>

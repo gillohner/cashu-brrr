@@ -171,6 +171,7 @@
 
   let {
     denomination,
+    mintUrl,
     token,
 
     enableTopLeftIcon = true,
@@ -371,6 +372,25 @@
       processQRCode();
     }
   });
+
+  // Compute default bottom text and support {MINT} placeholder replacement
+  const mintHostUpper = $derived.by(() => {
+    if (!mintUrl) return "";
+    try {
+      const u = new URL(mintUrl);
+      return (u.host || mintUrl).toUpperCase();
+    } catch {
+      return mintUrl.toUpperCase();
+    }
+  });
+
+  const bottomTextComputed = $derived.by(() => {
+    const tpl = (customBottomText ?? "").trim();
+    if (tpl.length > 0) {
+      return tpl.replaceAll("{MINT}", mintHostUpper);
+    }
+    return mintHostUpper ? `${mintHostUpper}\nADD YOUR OWN TEXT` : "";
+  });
 </script>
 
 <!-- QR Code Generator (Hidden) -->
@@ -521,68 +541,74 @@
     {#if enableTopLeftIcon && topLeftIcon !== "none"}
       <g
         id="logo-placeholder"
-        transform="translate({topLeftIconX}, {topLeftIconY})"
-        opacity={topLeftIconOpacity / 100}
+        transform="translate({topLeftIconX ?? 10}, {topLeftIconY ?? 10})"
+        opacity={(topLeftIconOpacity ?? 100) / 100}
       >
         {#if topLeftIcon === "cashu-logo"}
           <!-- Cashu Logo from /public/icon.svg -->
           <image
             href="/icon.svg"
-            width={topLeftIconSize}
-            height={topLeftIconSize}
+            width={topLeftIconSize ?? 35}
+            height={topLeftIconSize ?? 35}
             filter={enableIconColorOverride
               ? `url(#iconColorFilter-${randomID})`
               : undefined}
+            preserveAspectRatio="xMidYMid meet"
           />
         {:else if topLeftIcon === "bitcoin"}
           <!-- Bitcoin Logo from /public/bitcoin.svg -->
           <image
             href="/bitcoin.svg"
-            width={topLeftIconSize}
-            height={topLeftIconSize}
+            width={topLeftIconSize ?? 35}
+            height={topLeftIconSize ?? 35}
             filter={enableIconColorOverride
               ? `url(#iconColorFilter-${randomID})`
               : undefined}
+            preserveAspectRatio="xMidYMid meet"
           />
         {:else if topLeftIcon === "satoshi-v1"}
           <!-- Satoshi v1 from /public/satoshi-v1.svg -->
           <image
             href="/satoshi-v1.svg"
-            width={topLeftIconSize}
-            height={topLeftIconSize}
+            width={topLeftIconSize ?? 35}
+            height={topLeftIconSize ?? 35}
             filter={enableIconColorOverride
               ? `url(#iconColorFilter-${randomID})`
               : undefined}
+            preserveAspectRatio="xMidYMid meet"
           />
         {:else if topLeftIcon === "satoshi-v2"}
           <!-- Satoshi v2 from /public/satoshi-v2.svg -->
           <image
             href="/satoshi-v2.svg"
-            width={topLeftIconSize}
-            height={topLeftIconSize}
+            width={topLeftIconSize ?? 35}
+            height={topLeftIconSize ?? 35}
             filter={enableIconColorOverride
               ? `url(#iconColorFilter-${randomID})`
               : undefined}
+            preserveAspectRatio="xMidYMid meet"
           />
         {:else if topLeftIcon === "satoshi-v3"}
           <!-- Satoshi v3 from /public/satoshi-v3.svg -->
           <image
             href="/satoshi-v3.svg"
-            width={topLeftIconSize}
-            height={topLeftIconSize}
+            width={topLeftIconSize ?? 35}
+            height={topLeftIconSize ?? 35}
             filter={enableIconColorOverride
               ? `url(#iconColorFilter-${randomID})`
               : undefined}
+            preserveAspectRatio="xMidYMid meet"
           />
         {:else if topLeftIcon === "custom" && customLogoUrl}
           <!-- Custom uploaded image -->
           <image
             href={customLogoUrl}
-            width={topLeftIconSize}
-            height={topLeftIconSize}
+            width={topLeftIconSize ?? 35}
+            height={topLeftIconSize ?? 35}
             filter={enableIconColorOverride
               ? `url(#iconColorFilter-${randomID})`
               : undefined}
+            preserveAspectRatio="xMidYMid meet"
           />
         {/if}
       </g>
@@ -755,7 +781,7 @@
 
         <!-- Bottom Text -->
         <g id="bottom-text" transform="translate(6, 37)">
-          {#each customBottomText.split("\n") as line, i}
+          {#each bottomTextComputed.split("\n") as line, i}
             <text
               x="0"
               y={i * 8}

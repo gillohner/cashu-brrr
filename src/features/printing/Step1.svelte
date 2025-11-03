@@ -15,6 +15,7 @@
   import { SPONSORS } from "../../lib/sponsors";
   import MintDiscovery from "../../components/ui/MintDiscovery.svelte";
   import PrintHistoryList from "../../components/ui/PrintHistoryList.svelte";
+  import NutEncoderDecoder from "../../components/ui/NutEncoderDecoder.svelte";
   import { getWalletWithUnit, loadMint } from "../../lib/utils";
 
   let mintUrl = $state("");
@@ -126,4 +127,18 @@
   {/if}
 
   <PrintHistoryList onReprint={reprint} />
+  <!-- Nut emoji encoder/decoder tool (collapsible, collapsed by default) -->
+  <div class="w-full mt-4">
+    <div
+      class="collapse collapse-arrow border border-base-300 bg-base-100 rounded-box"
+    >
+      <input type="checkbox" />
+      <div class="collapse-title text-sm font-medium">
+        Nut emoji encoder/decoder (optional)
+      </div>
+      <div class="collapse-content">
+        <NutEncoderDecoder />
+      </div>
+    </div>
+  </div>
 </div>

@@ -2952,7 +2952,7 @@
         id="text27"
         class="st406"
         transform="translate(158.35,206.95)"
-        aria-label="www.cashu.space"
+        aria-label="cashu.space"
       /><g id="g31"
         ><circle
           class="st16"

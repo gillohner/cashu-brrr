@@ -441,7 +441,7 @@
 
   <!-- Template Management Section -->
   <div class="collapse collapse-arrow bg-base-300 rounded-lg mb-4">
-    <input type="checkbox" checked />
+    <input type="checkbox" />
     <div class="collapse-title text-sm font-medium flex items-center gap-2">
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -1273,7 +1273,7 @@
 
   <!-- Guide Text Section -->
   <div class="collapse collapse-arrow bg-base-100">
-    <input type="checkbox" checked />
+    <input type="checkbox" />
     <div class="collapse-title text-sm font-medium">Guide Text Box</div>
     <div class="collapse-content space-y-3">
       <!-- Enable/Disable Toggle -->
@@ -1428,7 +1428,7 @@
 
   <!-- Custom Images Section -->
   <div class="collapse collapse-arrow bg-base-100">
-    <input type="checkbox" checked />
+    <input type="checkbox" />
     <div class="collapse-title text-sm font-medium">Custom Images</div>
     <div class="collapse-content space-y-3">
       <div class="text-xs opacity-60 mb-2">
