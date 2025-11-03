@@ -266,7 +266,7 @@ export async function generatePdf(
       if (hasBacksides) {
         pdf.addPage();
         
-        // Render backs in same positions
+        // Render backs in same positions with 180° flip for proper alignment when physical paper is flipped
         for (let i = 0; i < notesOnThisPage.length; i++) {
           const note = notesOnThisPage[i];
           if (!note.backSvg) {
@@ -280,12 +280,14 @@ export async function generatePdf(
           const x = leftMargin + BLEED;
           const y = BLEED + i * spacePerNote + noteSpacing;
           
-          // Draw cut marks
+          // Draw cut marks in EXACT same position as front
           drawCutMarks(pdf, x, y, rotatedNoteWidth, rotatedNoteHeight);
           
-          // Add back SVG with rotation (90° for portrait notes, 0° for landscape)
-          const rotation = note.rotation ?? 90;
-          await addSvgToPdf(pdf, note.backSvg, x, y, noteWidth, noteHeight, rotation);
+          // Add back SVG with 180° additional rotation for proper flip
+          // When the physical paper is flipped on short edge, this ensures correct orientation
+          const frontRotation = note.rotation ?? 90;
+          const backRotation = (frontRotation + 180) % 360;
+          await addSvgToPdf(pdf, note.backSvg, x, y, noteWidth, noteHeight, backRotation);
           
           currentOperation++;
           if (onProgress) {
