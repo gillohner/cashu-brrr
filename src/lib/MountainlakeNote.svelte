@@ -214,7 +214,6 @@
     useQrGradient = false,
 
     denominationColor = "#F77F00",
-    denominationX = 0,
     denominationY = 219,
 
     denomGradientType = 'solid',
