@@ -21,6 +21,16 @@
     opacity?: number;
   }
 
+  interface CustomImage {
+    id: string;
+    url: string;
+    x: number;
+    y: number;
+    opacity: number;
+    width: number;
+    height: number;
+  }
+
   interface Props {
     /** Token denomination value */
     denomination: number;
@@ -29,17 +39,37 @@
     /** Encoded Cashu token */
     token: string;
 
+    /** Enable/disable toggles for each section */
+    enableTopLeftIcon?: boolean;
+    enableHeaderText?: boolean;
+    enableQrCode?: boolean;
+    enableDenomination?: boolean;
+
     /** Top left icon type */
-    topLeftIcon?: "cashu" | "bitcoin" | "sats" | "custom" | "none";
+    topLeftIcon?: "cashu-logo" | "bitcoin" | "satoshi-v1" | "satoshi-v2" | "satoshi-v3" | "custom" | "none";
     /** Custom logo URL if topLeftIcon is 'custom' */
     customLogoUrl?: string;
-    /** Top left icon color */
+    /** Top left icon color (when color override is enabled) */
     topLeftIconColor?: string;
+    /** Enable color override for icon */
+    enableIconColorOverride?: boolean;
+    /** Icon size in pixels */
+    topLeftIconSize?: number;
+    /** Icon X position */
+    topLeftIconX?: number;
+    /** Icon Y position */
+    topLeftIconY?: number;
+    /** Icon opacity (0-100) */
+    topLeftIconOpacity?: number;
 
     /** Header text (supports newlines) */
     headerText?: string;
     /** Header text color */
     headerTextColor?: string;
+    /** Header text X position */
+    headerTextX?: number;
+    /** Header text Y position */
+    headerTextY?: number;
 
     /** Background gradient type (solid, linear, or radial) */
     bgGradientType?: 'linear' | 'radial' | 'solid';
@@ -75,6 +105,12 @@
     disableQrBorder?: boolean;
     /** QR code foreground color */
     qrCodeColor?: string;
+    /** QR X position */
+    qrX?: number;
+    /** QR Y position */
+    qrY?: number;
+    /** QR size */
+    qrSize?: number;
 
     /** Legacy QR props (deprecated) */
     qrBackgroundColor?: string;
@@ -83,6 +119,10 @@
 
     /** Denomination text color */
     denominationColor?: string;
+    /** Denomination X position */
+    denominationX?: number;
+    /** Denomination Y position */
+    denominationY?: number;
 
     /** Bottom box gradient type */
     denomGradientType?: 'linear' | 'radial' | 'solid';
@@ -104,18 +144,46 @@
 
     /** Custom layers for images/graphics */
     customLayers?: CustomLayer[];
+    
+    /** Custom images */
+    customImages?: CustomImage[];
+    
+    /** Guide text box */
+    enableGuideText?: boolean;
+    guideText?: string;
+    guideTextColor?: string;
+    guideBackgroundColor?: string;
+    guideBorderColor?: string;
+    disableGuideBorder?: boolean;
+    disableGuideBackground?: boolean;
+    guideX?: number;
+    guideY?: number;
+    guideWidth?: number;
+    guideHeight?: number;
   }
 
   let {
     denomination,
     token,
 
-    topLeftIcon = "cashu",
+    enableTopLeftIcon = true,
+    enableHeaderText = true,
+    enableQrCode = true,
+    enableDenomination = true,
+
+    topLeftIcon = "cashu-logo",
     customLogoUrl = "",
     topLeftIconColor = "#FFFFFF",
+    enableIconColorOverride = false,
+    topLeftIconSize = 35,
+    topLeftIconX = 10,
+    topLeftIconY = 10,
+    topLeftIconOpacity = 100,
 
     headerText = "Cashu Token\nRedeemable with Cashu\nWallet of choice",
     headerTextColor = "#FFFFFF",
+    headerTextX = 150,
+    headerTextY = 0,
 
     bgGradientType = 'linear',
     bgSolidColor = "#F77F00",
@@ -136,6 +204,9 @@
     disableQrBackground = false,
     disableQrBorder = false,
     qrCodeColor = "#000000",
+    qrX = 40,
+    qrY = 90,
+    qrSize = 80,
 
     // Legacy QR support
     qrBackgroundColor = "#FFFFFF",
@@ -143,6 +214,8 @@
     useQrGradient = false,
 
     denominationColor = "#F77F00",
+    denominationX = 0,
+    denominationY = 219,
 
     denomGradientType = 'solid',
     denomGradientStops,
@@ -157,6 +230,19 @@
     useDenomGradient = false,
 
     customLayers = [],
+    customImages = [],
+    
+    enableGuideText = false,
+    guideText = "How to redeem:\n1. Download a Cashu wallet\n2. Scan the QR code\n3. Tokens are in your wallet",
+    guideTextColor = "#333333",
+    guideBackgroundColor = "#FFFFFF",
+    guideBorderColor = "#F77F00",
+    disableGuideBorder = false,
+    disableGuideBackground = false,
+    guideX = 10,
+    guideY = 90,
+    guideWidth = 140,
+    guideHeight = 100,
   }: Props = $props();
 
   let imageURL = $state("");
@@ -362,6 +448,25 @@
           {/each}
         </radialGradient>
       {/if}
+
+      <!-- Icon Color Override Filter -->
+      {#if enableIconColorOverride}
+        <filter id="iconColorFilter-{randomID}" color-interpolation-filters="sRGB">
+          <!-- Step 1: Extract the alpha channel -->
+          <feColorMatrix type="matrix" values="
+            0 0 0 0 0
+            0 0 0 0 0
+            0 0 0 0 0
+            0 0 0 1 0
+          " result="alphaOnly"/>
+          
+          <!-- Step 2: Create a flood with the target color -->
+          <feFlood flood-color={topLeftIconColor} result="colorFlood"/>
+          
+          <!-- Step 3: Composite the color with the alpha -->
+          <feComposite in="colorFlood" in2="alphaOnly" operator="in"/>
+        </filter>
+      {/if}
     </defs>
 
     <!-- Background -->
@@ -373,72 +478,63 @@
     />
 
     <!-- Top Left Logo -->
-    {#if topLeftIcon !== "none"}
-    <g id="logo-placeholder" transform="translate(10, 10)">
-      {#if topLeftIcon === "custom" && customLogoUrl}
-        <image href={customLogoUrl} width="35" height="35" />
-      {:else if topLeftIcon === "cashu"}
-        <!-- Cashu Logo (from your SVG) -->
-        <path
-          d="m 6.367787,17.294186 c 2.889785,1.400491 6.532758,2.899016 10.54464,0.700245 3.08961,-1.680589 1.275809,-5.33587 -1.967513,-5.503929 -3.350921,-0.168059 -4.180965,-1.008354 -4.88804,-2.198771 0,0 -0.753189,-1.834643 0.184454,-3.473218 0.937643,-1.638574 2.56699,-5.013757 -0.76856,-7.5346412 -3.335549,-2.5208837 -9.4840267,0.280098 -9.6377387,6.7083522 -0.1537119,6.428253 3.6429727,9.901471 6.5327577,11.301962 z"
-          fill={topLeftIconColor}
-          stroke={gradientStart}
-          stroke-width="0.5"
+    {#if enableTopLeftIcon && topLeftIcon !== "none"}
+    <g id="logo-placeholder" transform="translate({topLeftIconX}, {topLeftIconY})" opacity={topLeftIconOpacity / 100}>
+      {#if topLeftIcon === "cashu-logo"}
+        <!-- Cashu Logo from /public/icon.svg -->
+        <image 
+          href="/icon.svg" 
+          width={topLeftIconSize} 
+          height={topLeftIconSize}
+          filter={enableIconColorOverride ? `url(#iconColorFilter-${randomID})` : undefined}
         />
       {:else if topLeftIcon === "bitcoin"}
-        <!-- Bitcoin Logo -->
-        <circle
-          cx="17.5"
-          cy="17.5"
-          r="17"
-          fill="none"
-          stroke={topLeftIconColor}
-          stroke-width="2"
+        <!-- Bitcoin Logo from /public/bitcoin.svg -->
+        <image 
+          href="/bitcoin.svg" 
+          width={topLeftIconSize} 
+          height={topLeftIconSize}
+          filter={enableIconColorOverride ? `url(#iconColorFilter-${randomID})` : undefined}
         />
-        <path
-          d="M 10 7 L 10 28 M 10 7 L 20 7 C 24 7 24 13 20 13 L 10 13 M 10 13 L 21 13 C 25 13 25 19 21 19 L 10 19"
-          stroke={topLeftIconColor}
-          stroke-width="2.5"
-          fill="none"
-          stroke-linecap="round"
+      {:else if topLeftIcon === "satoshi-v1"}
+        <!-- Satoshi v1 from /public/satoshi-v1.svg -->
+        <image 
+          href="/satoshi-v1.svg" 
+          width={topLeftIconSize} 
+          height={topLeftIconSize}
+          filter={enableIconColorOverride ? `url(#iconColorFilter-${randomID})` : undefined}
         />
-      {:else if topLeftIcon === "sats"}
-        <!-- Sats Icon (three lines) -->
-        <g transform="translate(8, 8)">
-          <line
-            x1="0"
-            y1="5"
-            x2="20"
-            y2="5"
-            stroke={topLeftIconColor}
-            stroke-width="2.5"
-            stroke-linecap="round"
-          />
-          <line
-            x1="0"
-            y1="12"
-            x2="20"
-            y2="12"
-            stroke={topLeftIconColor}
-            stroke-width="2.5"
-            stroke-linecap="round"
-          />
-          <line
-            x1="0"
-            y1="19"
-            x2="20"
-            y2="19"
-            stroke={topLeftIconColor}
-            stroke-width="2.5"
-            stroke-linecap="round"
-          />
-        </g>
+      {:else if topLeftIcon === "satoshi-v2"}
+        <!-- Satoshi v2 from /public/satoshi-v2.svg -->
+        <image 
+          href="/satoshi-v2.svg" 
+          width={topLeftIconSize} 
+          height={topLeftIconSize}
+          filter={enableIconColorOverride ? `url(#iconColorFilter-${randomID})` : undefined}
+        />
+      {:else if topLeftIcon === "satoshi-v3"}
+        <!-- Satoshi v3 from /public/satoshi-v3.svg -->
+        <image 
+          href="/satoshi-v3.svg" 
+          width={topLeftIconSize} 
+          height={topLeftIconSize}
+          filter={enableIconColorOverride ? `url(#iconColorFilter-${randomID})` : undefined}
+        />
+      {:else if topLeftIcon === "custom" && customLogoUrl}
+        <!-- Custom uploaded image -->
+        <image 
+          href={customLogoUrl} 
+          width={topLeftIconSize} 
+          height={topLeftIconSize}
+          filter={enableIconColorOverride ? `url(#iconColorFilter-${randomID})` : undefined}
+        />
       {/if}
     </g>
     {/if}
 
     <!-- Top Right Header Text -->
-    <g id="header-text" transform="translate(150, 0)">
+    {#if enableHeaderText}
+    <g id="header-text" transform="translate({headerTextX}, {headerTextY})">
       {#each headerText.split("\n").slice(0, 3) as line, i}
         <text
           x="0"
@@ -453,15 +549,16 @@
         </text>
       {/each}
     </g>
+    {/if}
 
     <!-- QR Code Area Background -->
-    {#if !disableQrBackground}
+    {#if enableQrCode && !disableQrBackground}
       <rect
         id="qr-container"
-        x="26.98"
-        y="84.61"
-        width="107.82"
-        height="106.34"
+        x={qrX}
+        y={qrY}
+        width={qrSize}
+        height={qrSize}
         fill={qrGradientType === 'solid'
           ? qrStops[0].color
           : `url(#qrGradient-${randomID})`}
@@ -472,24 +569,24 @@
     {/if}
 
     <!-- QR Code Image -->
-    {#if imageURL}
+    {#if enableQrCode && imageURL}
       <image
         href={imageURL}
-        x="35"
-        y="93"
-        width="90"
-        height="90"
+        x={qrX + (qrSize * 0.1)}
+        y={qrY + (qrSize * 0.1)}
+        width={qrSize * 0.8}
+        height={qrSize * 0.8}
         preserveAspectRatio="xMidYMid meet"
         style="mix-blend-mode: multiply;"
       />
     {/if}
 
     <!-- Bottom Box -->
-    {#if !disableDenomBackground}
+    {#if enableDenomination && !disableDenomBackground}
       <rect
         id="bottom-box"
         x="0"
-        y="216.44"
+        y={denominationY}
         width="160"
         height="56.08"
         fill={denomGradientType === 'solid'
@@ -535,12 +632,57 @@
       {/if}
     {/each}
 
+    <!-- Custom Images -->
+    {#each customImages as image (image.id)}
+      <image
+        href={image.url}
+        x={image.x}
+        y={image.y}
+        width={image.width}
+        height={image.height}
+        opacity={image.opacity / 100}
+        preserveAspectRatio="xMidYMid meet"
+      />
+    {/each}
+
+    <!-- Guide Text Box -->
+    {#if enableGuideText}
+      <!-- Background -->
+      {#if !disableGuideBackground}
+        <rect
+          x={guideX}
+          y={guideY}
+          width={guideWidth}
+          height={guideHeight}
+          fill={guideBackgroundColor}
+          stroke={disableGuideBorder ? "none" : guideBorderColor}
+          stroke-width={disableGuideBorder ? "0" : "1"}
+          rx="3"
+        />
+      {/if}
+      
+      <!-- Text -->
+      <text
+        x={guideX + 5}
+        y={guideY + 10}
+        font-family="Arial"
+        font-size="6"
+        fill={guideTextColor}
+        text-anchor="start"
+      >
+        {#each guideText.split("\n") as line, i}
+          <tspan x={guideX + 5} dy={i === 0 ? 0 : 8}>{line}</tspan>
+        {/each}
+      </text>
+    {/if}
+
     <!-- Denomination Group -->
-    <g id="denomination" transform="translate(0.3, -3.56)">
+    {#if enableDenomination}
+    <g id="denomination" transform="translate(0, {denominationY})">
       <!-- Denomination Number -->
       <text
         x="6"
-        y="245.25"
+        y="26"
         font-family="Arial"
         font-size="20"
         font-weight="700"
@@ -550,7 +692,7 @@
       </text>
 
       <!-- Bottom Text -->
-      <g id="bottom-text" transform="translate(6, 256)">
+      <g id="bottom-text" transform="translate(6, 37)">
         {#each customBottomText.split("\n") as line, i}
           <text
             x="0"
@@ -564,6 +706,7 @@
           </text>
         {/each}
       </g>
-    </g></svg
+    </g>
+    {/if}</svg
   >
 </div>

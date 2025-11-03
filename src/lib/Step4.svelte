@@ -31,10 +31,180 @@
   let brandLogoURL = $state("");
   let cornerBrandLogoURL = $state("");
 
-  // Mountainlake note configuration
-  let topLeftIcon = $state<"cashu" | "bitcoin" | "none" | "custom">("cashu");
+  // Mountainlake backside configuration
+  let enableBackside = $state(false);
+  let activeSide = $state<'front' | 'back'>('front');
+
+  // Define the design configuration type
+  interface CustomImage {
+    id: string;
+    url: string;
+    x: number;
+    y: number;
+    opacity: number;
+    width: number;
+    height: number;
+  }
+
+  interface MountainlakeDesignConfig {
+    // Top Left Icon
+    topLeftIcon: "cashu-logo" | "bitcoin" | "satoshi-v1" | "satoshi-v2" | "satoshi-v3" | "none" | "custom";
+    customLogoUrl: string;
+    topLeftIconColor: string;
+    enableIconColorOverride: boolean;
+    topLeftIconSize: number;
+    topLeftIconX: number;
+    topLeftIconY: number;
+    topLeftIconOpacity: number;
+    enableTopLeftIcon: boolean;
+    
+    // Top Right Text
+    headerText: string;
+    headerTextColor: string;
+    headerTextX: number;
+    headerTextY: number;
+    enableHeaderText: boolean;
+    
+    // Background
+    bgGradientType: 'linear' | 'radial' | 'solid';
+    gradientType: 'linear' | 'radial';
+    gradientAngle: number;
+    gradientStops: Array<{ offset: number; color: string }>;
+    radialCenterX: number;
+    radialCenterY: number;
+    bgSolidColor: string;
+    
+    // QR Code
+    qrGradientType: 'linear' | 'radial' | 'solid';
+    qrGradientAngle: number;
+    qrGradientStops: Array<{ offset: number; color: string }>;
+    qrBackgroundColor: string;
+    qrBorderColor: string;
+    qrCodeColor: string;
+    disableQrBorder: boolean;
+    disableQrBackground: boolean;
+    enableQrCode: boolean;
+    qrX: number;
+    qrY: number;
+    qrSize: number;
+    
+    // Bottom
+    denominationColor: string;
+    bottomBoxColor: string;
+    bottomTextColor: string;
+    customBottomText: string;
+    enableDenomination: boolean;
+    denominationX: number;
+    denominationY: number;
+    
+    // Custom Images
+    customImages: CustomImage[];
+    
+    // Guide Text Box
+    enableGuideText: boolean;
+    guideText: string;
+    guideTextColor: string;
+    guideBackgroundColor: string;
+    guideBorderColor: string;
+    disableGuideBorder: boolean;
+    disableGuideBackground: boolean;
+    guideX: number;
+    guideY: number;
+    guideWidth: number;
+    guideHeight: number;
+  }
+
+  const defaultDesignConfig: MountainlakeDesignConfig = {
+    topLeftIcon: "cashu-logo",
+    customLogoUrl: "",
+    topLeftIconColor: "#FFFFFF",
+    enableIconColorOverride: false,
+    topLeftIconSize: 35,
+    topLeftIconX: 10,
+    topLeftIconY: 10,
+    topLeftIconOpacity: 100,
+    enableTopLeftIcon: true,
+    
+    headerText: "Cashu Token\nRedeemable with Cashu\nWallet of choice",
+    headerTextColor: "#FFFFFF",
+    headerTextX: 150,
+    headerTextY: 0,
+    enableHeaderText: true,
+    
+    bgGradientType: 'linear',
+    gradientType: 'linear',
+    gradientAngle: 135,
+    gradientStops: [
+      { offset: 0, color: "#F77F00" },
+      { offset: 100, color: "#7209B7" }
+    ],
+    radialCenterX: 50,
+    radialCenterY: 50,
+    bgSolidColor: "#F77F00",
+    
+    qrGradientType: 'solid',
+    qrGradientAngle: 90,
+    qrGradientStops: [
+      { offset: 0, color: "#FFFFFF" },
+      { offset: 100, color: "#F0F0F0" }
+    ],
+    qrBackgroundColor: "#FFFFFF",
+    qrBorderColor: "#F77F00",
+    qrCodeColor: "#000000",
+    disableQrBorder: false,
+    disableQrBackground: false,
+    enableQrCode: true,
+    qrX: 35,
+    qrY: 93,
+    qrSize: 90,
+    
+    denominationColor: "#F77F00",
+    bottomBoxColor: "#FFFFFF",
+    bottomTextColor: "#666666",
+    customBottomText: "",
+    enableDenomination: true,
+    denominationX: 0,
+    denominationY: 219,
+    
+    // Custom Images
+    customImages: [],
+    
+    // Guide Text Box
+    enableGuideText: false,
+    guideText: "How to redeem:\n1. Download a Cashu wallet\n2. Scan the QR code\n3. Tokens are now in your wallet",
+    guideTextColor: "#333333",
+    guideBackgroundColor: "#FFFFFF",
+    guideBorderColor: "#F77F00",
+    disableGuideBorder: false,
+    disableGuideBackground: false,
+    guideX: 10,
+    guideY: 90,
+    guideWidth: 140,
+    guideHeight: 100,
+  };
+
+  // Front and back design configurations
+  let frontDesign = $state<MountainlakeDesignConfig>({ ...defaultDesignConfig });
+  let backDesign = $state<MountainlakeDesignConfig>({ 
+    ...defaultDesignConfig,
+    enableQrCode: false,
+    enableDenomination: false,
+    enableGuideText: true,  // Enable guide text on back by default
+    headerText: "Cashu Ecash\nDigital Bearer Asset\nSelf Custody",
+  });
+
+  // Get current active design based on side
+  const currentDesign = $derived(activeSide === 'front' ? frontDesign : backDesign);
+
+  // Mountainlake note configuration - LEGACY (for backward compatibility during migration)
+  let topLeftIcon = $state<"cashu-logo" | "bitcoin" | "satoshi-v1" | "satoshi-v2" | "satoshi-v3" | "none" | "custom">("cashu-logo");
   let customLogoUrl = $state("");
   let topLeftIconColor = $state("#FFFFFF");
+  let enableIconColorOverride = $state(false);
+  let topLeftIconSize = $state(35);
+  let topLeftIconX = $state(10);
+  let topLeftIconY = $state(10);
+  let topLeftIconOpacity = $state(100);
   let headerText = $state("Cashu Token\nRedeemable with Cashu\nWallet of choice");
   let headerTextColor = $state("#FFFFFF");
   
@@ -178,65 +348,77 @@
     <!-- Template Selection -->
     <div>
       <h3 class="text-sm font-semibold mb-2 text-center">Choose Design Template</h3>
-      <div class="flex gap-3 flex-wrap justify-center">
+      <div class="flex gap-3 flex-wrap justify-center items-start">
         <button 
           onclick={()=> selectedTemplate="comic"} 
-          class="w-28 p-1.5 border-2 rounded-lg transition-all {selectedTemplate==="comic"?"border-primary shadow-lg":"border-base-300 hover:border-base-400"}"
+          class="w-32 p-1.5 border-2 rounded-lg transition-all {selectedTemplate==="comic"?"border-primary shadow-lg":"border-base-300 hover:border-base-400"}"
           title="Comic design by @BitPopart"
         >
           <div class="text-xs font-medium mb-1">Comic</div>
-          <ComicNote
-            {design}
-            denomination={getAmountForTokenSet($preparedTokens[0]?.proofs??[])}
-            mintUrl={$wallet?.mint.mintUrl}
-            token={"blabla"}
-            unit={$preparedTokens[0]?.unit??'sat'}
-            disableDownload={true}
-          />
+          <div class="w-full">
+            <ComicNote
+              {design}
+              denomination={getAmountForTokenSet($preparedTokens[0]?.proofs??[])}
+              mintUrl={$wallet?.mint.mintUrl}
+              token={"blabla"}
+              unit={$preparedTokens[0]?.unit??'sat'}
+              disableDownload={true}
+            />
+          </div>
         </button>
         <button 
           onclick={()=> selectedTemplate="custom"} 
-          class="w-28 p-1.5 border-2 rounded-lg transition-all {selectedTemplate==="custom"?"border-primary shadow-lg":"border-base-300 hover:border-base-400"}"
+          class="w-32 p-1.5 border-2 rounded-lg transition-all {selectedTemplate==="custom"?"border-primary shadow-lg":"border-base-300 hover:border-base-400"}"
           title="Custom design by @gandlaf21"
         >
           <div class="text-xs font-medium mb-1">Custom</div>
-          <CustomNote 
-            {brandLogoURL}
-            {colorCode}
-            {cornerBrandLogoURL}
-            denomination={getAmountForTokenSet($preparedTokens[0]?.proofs??[])}
-            mintUrl={$wallet?.mint.mintUrl}
-            token={"blabla"}
-            unit={$preparedTokens[0]?.unit??'sat'}
-          />
+          <div class="w-full">
+            <CustomNote 
+              {brandLogoURL}
+              {colorCode}
+              {cornerBrandLogoURL}
+              denomination={getAmountForTokenSet($preparedTokens[0]?.proofs??[])}
+              mintUrl={$wallet?.mint.mintUrl}
+              token={"blabla"}
+              unit={$preparedTokens[0]?.unit??'sat'}
+            />
+          </div>
         </button>
         <button 
           onclick={()=> selectedTemplate="mountainlake"} 
-          class="w-28 p-1.5 border-2 rounded-lg transition-all {selectedTemplate==="mountainlake"?"border-primary shadow-lg":"border-base-300 hover:border-base-400"}"
+          class="w-24 p-1.5 border-2 rounded-lg transition-all {selectedTemplate==="mountainlake"?"border-primary shadow-lg":"border-base-300 hover:border-base-400"}"
           title="Fully customizable Mountainlake design"
         >
           <div class="text-xs font-medium mb-1">Mountainlake</div>
-          <MountainlakeNote 
-            denomination={getAmountForTokenSet($preparedTokens[0]?.proofs??[])}
-            mintUrl={$wallet?.mint.mintUrl}
-            token={"blabla"}
-            {topLeftIcon}
-            {customLogoUrl}
-            {headerText}
-            {headerTextColor}
-            {gradientType}
-            {gradientStops}
-            {gradientAngle}
-            {radialCenterX}
-            {radialCenterY}
-            {qrBackgroundColor}
-            {qrBorderColor}
-            {denominationColor}
-            {bottomBoxColor}
-            {bottomTextColor}
-            {customBottomText}
-            {customLayers}
-          />
+          <div class="w-full scale-75 origin-top">
+            <MountainlakeNote 
+              denomination={getAmountForTokenSet($preparedTokens[0]?.proofs??[])}
+              mintUrl={$wallet?.mint.mintUrl}
+              token={"blabla"}
+              {topLeftIcon}
+              {customLogoUrl}
+              {topLeftIconColor}
+              {enableIconColorOverride}
+              {topLeftIconSize}
+              {topLeftIconX}
+              {topLeftIconY}
+              {topLeftIconOpacity}
+              {headerText}
+              {headerTextColor}
+              {gradientType}
+              {gradientStops}
+              {gradientAngle}
+              {radialCenterX}
+              {radialCenterY}
+              {qrBackgroundColor}
+              {qrBorderColor}
+              {denominationColor}
+              {bottomBoxColor}
+              {bottomTextColor}
+              {customBottomText}
+              {customLayers}
+            />
+          </div>
         </button>
       </div>
     </div>
@@ -311,35 +493,65 @@
 
       {:else if selectedTemplate === "mountainlake"}
         <MountainlakeDesigner 
+          bind:enableBackside={enableBackside}
+          bind:activeSide={activeSide}
           bind:bgSectionOpen={bgSectionOpen}
           bind:topLeftSectionOpen={topLeftSectionOpen}
           bind:topRightSectionOpen={topRightSectionOpen}
           bind:qrSectionOpen={qrSectionOpen}
           bind:bottomSectionOpen={bottomSectionOpen}
-          bind:bgGradientType={bgGradientType}
-          bind:bgSolidColor={bgSolidColor}
-          bind:gradientType={gradientType}
-          bind:gradientAngle={gradientAngle}
-          bind:gradientStops={gradientStops}
-          bind:radialCenterX={radialCenterX}
-          bind:radialCenterY={radialCenterY}
-          bind:topLeftIcon={topLeftIcon}
-          bind:customLogoUrl={customLogoUrl}
-          bind:topLeftIconColor={topLeftIconColor}
-          bind:headerText={headerText}
-          bind:headerTextColor={headerTextColor}
-          bind:qrGradientType={qrGradientType}
-          bind:qrGradientAngle={qrGradientAngle}
-          bind:qrGradientStops={qrGradientStops}
-          bind:qrCodeColor={qrCodeColor}
-          bind:qrBackgroundColor={qrBackgroundColor}
-          bind:qrBorderColor={qrBorderColor}
-          bind:disableQrBackground={disableQrBackground}
-          bind:disableQrBorder={disableQrBorder}
-          bind:denominationColor={denominationColor}
-          bind:bottomBoxColor={bottomBoxColor}
-          bind:bottomTextColor={bottomTextColor}
-          bind:customBottomText={customBottomText}
+          bind:enableTopLeftIcon={currentDesign.enableTopLeftIcon}
+          bind:enableHeaderText={currentDesign.enableHeaderText}
+          bind:enableQrCode={currentDesign.enableQrCode}
+          bind:enableDenomination={currentDesign.enableDenomination}
+          bind:bgGradientType={currentDesign.bgGradientType}
+          bind:bgSolidColor={currentDesign.bgSolidColor}
+          bind:gradientType={currentDesign.gradientType}
+          bind:gradientAngle={currentDesign.gradientAngle}
+          bind:gradientStops={currentDesign.gradientStops}
+          bind:radialCenterX={currentDesign.radialCenterX}
+          bind:radialCenterY={currentDesign.radialCenterY}
+          bind:topLeftIcon={currentDesign.topLeftIcon}
+          bind:customLogoUrl={currentDesign.customLogoUrl}
+          bind:topLeftIconColor={currentDesign.topLeftIconColor}
+          bind:enableIconColorOverride={currentDesign.enableIconColorOverride}
+          bind:topLeftIconSize={currentDesign.topLeftIconSize}
+          bind:topLeftIconX={currentDesign.topLeftIconX}
+          bind:topLeftIconY={currentDesign.topLeftIconY}
+          bind:topLeftIconOpacity={currentDesign.topLeftIconOpacity}
+          bind:headerText={currentDesign.headerText}
+          bind:headerTextColor={currentDesign.headerTextColor}
+          bind:headerTextX={currentDesign.headerTextX}
+          bind:headerTextY={currentDesign.headerTextY}
+          bind:qrGradientType={currentDesign.qrGradientType}
+          bind:qrGradientAngle={currentDesign.qrGradientAngle}
+          bind:qrGradientStops={currentDesign.qrGradientStops}
+          bind:qrCodeColor={currentDesign.qrCodeColor}
+          bind:qrBackgroundColor={currentDesign.qrBackgroundColor}
+          bind:qrBorderColor={currentDesign.qrBorderColor}
+          bind:disableQrBackground={currentDesign.disableQrBackground}
+          bind:disableQrBorder={currentDesign.disableQrBorder}
+          bind:qrX={currentDesign.qrX}
+          bind:qrY={currentDesign.qrY}
+          bind:qrSize={currentDesign.qrSize}
+          bind:denominationColor={currentDesign.denominationColor}
+          bind:bottomBoxColor={currentDesign.bottomBoxColor}
+          bind:bottomTextColor={currentDesign.bottomTextColor}
+          bind:customBottomText={currentDesign.customBottomText}
+          bind:denominationX={currentDesign.denominationX}
+          bind:denominationY={currentDesign.denominationY}
+          bind:customImages={currentDesign.customImages}
+          bind:enableGuideText={currentDesign.enableGuideText}
+          bind:guideText={currentDesign.guideText}
+          bind:guideTextColor={currentDesign.guideTextColor}
+          bind:guideBackgroundColor={currentDesign.guideBackgroundColor}
+          bind:guideBorderColor={currentDesign.guideBorderColor}
+          bind:disableGuideBorder={currentDesign.disableGuideBorder}
+          bind:disableGuideBackground={currentDesign.disableGuideBackground}
+          bind:guideX={currentDesign.guideX}
+          bind:guideY={currentDesign.guideY}
+          bind:guideWidth={currentDesign.guideWidth}
+          bind:guideHeight={currentDesign.guideHeight}
         />
       {/if}
       </div>
@@ -372,30 +584,58 @@
               denomination={getAmountForTokenSet($preparedTokens[0]?.proofs??[])}
               mintUrl={$wallet?.mint.mintUrl}
               token={"blabla"}
-              {topLeftIcon}
-              {customLogoUrl}
-              topLeftIconColor={topLeftIconColor}
-              {headerText}
-              {headerTextColor}
-              {bgGradientType}
-              {bgSolidColor}
-              {gradientType}
-              {gradientStops}
-              {gradientAngle}
-              {radialCenterX}
-              {radialCenterY}
-              {qrGradientType}
-              {qrGradientAngle}
-              {qrGradientStops}
-              {qrCodeColor}
-              {qrBackgroundColor}
-              {qrBorderColor}
-              {disableQrBorder}
-              {disableQrBackground}
-              {denominationColor}
-              {bottomBoxColor}
-              {bottomTextColor}
-              {customBottomText}
+              enableTopLeftIcon={currentDesign.enableTopLeftIcon}
+              enableHeaderText={currentDesign.enableHeaderText}
+              enableQrCode={currentDesign.enableQrCode}
+              enableDenomination={currentDesign.enableDenomination}
+              topLeftIcon={currentDesign.topLeftIcon}
+              customLogoUrl={currentDesign.customLogoUrl}
+              topLeftIconColor={currentDesign.topLeftIconColor}
+              enableIconColorOverride={currentDesign.enableIconColorOverride}
+              topLeftIconSize={currentDesign.topLeftIconSize}
+              topLeftIconX={currentDesign.topLeftIconX}
+              topLeftIconY={currentDesign.topLeftIconY}
+              topLeftIconOpacity={currentDesign.topLeftIconOpacity}
+              headerText={currentDesign.headerText}
+              headerTextColor={currentDesign.headerTextColor}
+              headerTextX={currentDesign.headerTextX}
+              headerTextY={currentDesign.headerTextY}
+              bgGradientType={currentDesign.bgGradientType}
+              bgSolidColor={currentDesign.bgSolidColor}
+              gradientType={currentDesign.gradientType}
+              gradientStops={currentDesign.gradientStops}
+              gradientAngle={currentDesign.gradientAngle}
+              radialCenterX={currentDesign.radialCenterX}
+              radialCenterY={currentDesign.radialCenterY}
+              qrGradientType={currentDesign.qrGradientType}
+              qrGradientAngle={currentDesign.qrGradientAngle}
+              qrGradientStops={currentDesign.qrGradientStops}
+              qrCodeColor={currentDesign.qrCodeColor}
+              qrBackgroundColor={currentDesign.qrBackgroundColor}
+              qrBorderColor={currentDesign.qrBorderColor}
+              disableQrBorder={currentDesign.disableQrBorder}
+              disableQrBackground={currentDesign.disableQrBackground}
+              qrX={currentDesign.qrX}
+              qrY={currentDesign.qrY}
+              qrSize={currentDesign.qrSize}
+              denominationColor={currentDesign.denominationColor}
+              bottomBoxColor={currentDesign.bottomBoxColor}
+              bottomTextColor={currentDesign.bottomTextColor}
+              customBottomText={currentDesign.customBottomText}
+              denominationX={currentDesign.denominationX}
+              denominationY={currentDesign.denominationY}
+              customImages={currentDesign.customImages}
+              enableGuideText={currentDesign.enableGuideText}
+              guideText={currentDesign.guideText}
+              guideTextColor={currentDesign.guideTextColor}
+              guideBackgroundColor={currentDesign.guideBackgroundColor}
+              guideBorderColor={currentDesign.guideBorderColor}
+              disableGuideBorder={currentDesign.disableGuideBorder}
+              disableGuideBackground={currentDesign.disableGuideBackground}
+              guideX={currentDesign.guideX}
+              guideY={currentDesign.guideY}
+              guideWidth={currentDesign.guideWidth}
+              guideHeight={currentDesign.guideHeight}
             />
           {/if}
         </div>
@@ -483,15 +723,29 @@
           token={getEncodedTokenV4(token)}
           {topLeftIcon}
           {customLogoUrl}
+          {topLeftIconColor}
+          {enableIconColorOverride}
+          {topLeftIconSize}
+          {topLeftIconX}
+          {topLeftIconY}
+          {topLeftIconOpacity}
           {headerText}
           {headerTextColor}
+          {bgGradientType}
+          {bgSolidColor}
           {gradientType}
           {gradientStops}
           {gradientAngle}
           {radialCenterX}
           {radialCenterY}
+          {qrGradientType}
+          {qrGradientAngle}
+          {qrGradientStops}
+          {qrCodeColor}
           {qrBackgroundColor}
           {qrBorderColor}
+          {disableQrBorder}
+          {disableQrBackground}
           {denominationColor}
           {bottomBoxColor}
           {bottomTextColor}
