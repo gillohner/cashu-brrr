@@ -47,17 +47,6 @@ There are no central banks if everyone is a central bank.
 
 4. Open `http://localhost:5173` in your browser
 
-```bash
-# Run all tests
-npm test
-
-# Run tests in watch mode
-npm run test:ui
-
-# Generate coverage report
-npm run test:coverage
-```
-
 ## Building for production
 
 1. Build the application
