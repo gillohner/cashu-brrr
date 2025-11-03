@@ -1,19 +1,19 @@
 <script lang="ts">
   import { getEncodedTokenV4 } from "@cashu/cashu-ts";
-  import CustomNote from "./CustomNote.svelte";
-  import MountainlakeNote from "./MountainlakeNote.svelte";
+  import CustomNote from "../templates/custom/CustomNote.svelte";
+  import MountainlakeNote from "../templates/mountainlake/MountainlakeNote.svelte";
   import {
     preparedTokens,
     selectedNumberOfNotes,
     wallet,
-  } from "./stores.svelte";
-  import { getAmountForTokenSet } from "./utils";
-  import ShareViaNostr from "./comp/ShareViaNostr.svelte";
-  import ComicNote from "./ComicNote.svelte";
+  } from "../../state/stores/printing.svelte";
+  import { getAmountForTokenSet } from "../../lib/utils";
+  import ShareViaNostr from "./components/ShareViaNostr.svelte";
+  import ComicNote from "../templates/comic/ComicNote.svelte";
   import encodeQR from "qr";
   import JSZip from "jszip";
-  import MountainlakeDesigner from "../components/ui/MountainlakeDesigner.svelte";
-  import { generatePdf, extractSvgFromElement, getPrintingInstructions, type NoteData } from "./utils/pdf-generator";
+  import MountainlakeDesigner from "../templates/mountainlake/MountainlakeDesigner.svelte";
+  import { generatePdf, extractSvgFromElement, getPrintingInstructions, type NoteData } from "../../lib/pdf-generator";
   import { toast } from "svelte-sonner";
   import { mount, unmount } from 'svelte';
 

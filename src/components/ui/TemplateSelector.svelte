@@ -16,7 +16,7 @@
     {
       id: "mountainlake",
       label: "Mountainlake",
-      description: "Professional mountain theme",
+      description: "Pparofessional mountain theme",
     },
   ];
 

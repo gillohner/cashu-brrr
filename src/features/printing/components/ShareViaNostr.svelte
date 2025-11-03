@@ -1,14 +1,27 @@
 <script lang="ts">
   import { toast } from "svelte-sonner";
-  import { discoverContacts, sendViaNostr } from "../../nostr";
-  import { discoveredContacts, preparedTokens } from "../stores.svelte";
-  import { Check, Minus } from "lucide-svelte";
+  import { discoverContacts, sendViaNostr } from "../../../nostr";
+  import { discoveredContacts, preparedTokens, wallet } from "../../../state/stores/printing.svelte";
+  import { Check, Minus, Copy } from "lucide-svelte";
   import { getEncodedTokenV4 } from "@cashu/cashu-ts";
   import { nip19 } from "nostr-tools";
-  import { delay } from "../utils";
+  import { delay, formatAmount, getAmountForTokenSet } from "../../../lib/utils";
+  
   let addressBookNpub = $state("");
 
   let sent = $state(false);
+
+  const copyToken = async (token: any, index: number) => {
+    const encodedToken = getEncodedTokenV4(token);
+    
+    try {
+      await navigator.clipboard.writeText(encodedToken);
+      toast.success(`Token #${index + 1} copied to clipboard!`);
+    } catch (error) {
+      toast.error("Failed to copy to clipboard");
+      console.error(error);
+    }
+  };
 
   const discover = () => {
     if (!addressBookNpub.startsWith("npub")) {
@@ -40,7 +53,47 @@
   let selectedNpubs: string[] = $state([]);
 </script>
 
-<div class="gap-4 flex w-full m-4 flex-col">
+<div class="flex flex-col gap-6 w-full p-4">
+  <!-- Copy Tokens Section -->
+  <div class="flex flex-col gap-4">
+    <h3 class="text-xl font-bold">📋 Copy Tokens</h3>
+    <p class="text-sm opacity-70">Copy tokens to clipboard for easy sharing</p>
+    
+    <div class="grid gap-3">
+      {#each $preparedTokens as token, index}
+        {@const amount = getAmountForTokenSet(token.proofs)}
+        <div class="card bg-base-200 shadow-md">
+          <div class="card-body p-4 flex flex-row items-center justify-between gap-4">
+            <div class="flex flex-col gap-1 flex-1">
+              <span class="font-bold text-lg">
+                Token #{index + 1}
+              </span>
+              <span class="text-sm opacity-70">
+                {formatAmount(amount, $wallet.unit)}
+              </span>
+            </div>
+            <button
+              class="btn btn-primary gap-2"
+              onclick={() => copyToken(token, index)}
+            >
+              <Copy size={20} />
+              Copy
+            </button>
+          </div>
+        </div>
+      {/each}
+    </div>
+  </div>
+
+  <!-- Divider -->
+  <div class="divider">OR</div>
+
+  <!-- Nostr Sharing Section -->
+  <div class="flex flex-col gap-4">
+    <h3 class="text-xl font-bold">📡 Share via Nostr</h3>
+    <p class="text-sm opacity-70">Load an address book from an NPUB and send tokens directly</p>
+
+<div class="gap-4 flex w-full flex-col">
   Load an address book from an NPUB
   <div class="flex gap-2">
     <input
@@ -96,6 +149,8 @@
       </div>
     </div>
   {/each}
+</div>
+  </div>
 </div>
 
 {#if $discoveredContacts.length && !sent}

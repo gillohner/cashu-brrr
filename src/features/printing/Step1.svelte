@@ -8,14 +8,14 @@
     step,
     wallet,
     type Print,
-  } from "./stores.svelte";
-  import UnitSelector from "./comp/UnitSelector.svelte";
+  } from "../../state/stores/printing.svelte";
+  import UnitSelector from "../../lib/comp/UnitSelector.svelte";
   import { toast } from "svelte-sonner";
-  import Sponsor from "./Sponsor.svelte";
-  import { SPONSORS } from "./sponsors";
-  import MintDiscovery from "../components/ui/MintDiscovery.svelte";
-  import PrintHistoryList from "../components/ui/PrintHistoryList.svelte";
-  import { getWalletWithUnit, loadMint } from "./utils";
+  import Sponsor from "../../lib/Sponsor.svelte";
+  import { SPONSORS } from "../../lib/sponsors";
+  import MintDiscovery from "../../components/ui/MintDiscovery.svelte";
+  import PrintHistoryList from "../../components/ui/PrintHistoryList.svelte";
+  import { getWalletWithUnit, loadMint } from "../../lib/utils";
 
   let mintUrl = $state("");
   let isConnecting = $state(false);

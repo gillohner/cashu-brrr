@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { prints, type Print } from "../../lib/stores.svelte";
-  import NotesCalc from "../../lib/comp/NotesCalc.svelte";
+  import { prints, type Print } from "../../state/stores/printing.svelte";
+  import NotesCalc from "../../features/printing/components/NotesCalc.svelte";
   import { getAmountForTokenSet } from "../../lib/utils";
 
   interface Props {

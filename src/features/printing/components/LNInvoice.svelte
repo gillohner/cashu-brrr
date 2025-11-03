@@ -15,7 +15,7 @@
     step,
     wallet,
     type Print,
-  } from "../stores.svelte";
+  } from "../../../state/stores/printing.svelte";
   import {
     getEncodedTokenV4,
     MintQuoteState,
@@ -28,9 +28,9 @@
     createOutputAmounts,
     delay,
     getAmountForTokenSet,
-  } from "../utils";
+  } from "../../../lib/utils";
   import { nip04 } from "nostr-tools";
-  import { NUTSTASH_PUBKEY, sendViaNostr } from "../../nostr";
+  import { NUTSTASH_PUBKEY, sendViaNostr } from "../../../nostr";
   import { toast } from "svelte-sonner";
 
   // Silence unused variable warnings - may be used in future

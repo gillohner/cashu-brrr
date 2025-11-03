@@ -1,10 +1,10 @@
 <script lang="ts">
   import { Toaster } from "svelte-sonner";
-  import Step1 from "./Step1.svelte";
-  import Step2 from "./Step2.svelte";
-  import Step3 from "./Step3.svelte";
-  import Step4 from "./Step4.svelte";
-  import { step } from "./stores.svelte";
+  import Step1 from "../features/printing/Step1.svelte";
+  import Step2 from "../features/printing/Step2.svelte";
+  import Step3 from "../features/printing/Step3.svelte";
+  import Step4 from "../features/printing/Step4.svelte";
+  import { step } from "../state/stores/printing.svelte";
   import { Bitcoin, Code, Copy, Heart, Zap } from "lucide-svelte";
   import { copyTextToClipboard } from "./utils";
   import DonateCashu from "./DonateCashu.svelte";

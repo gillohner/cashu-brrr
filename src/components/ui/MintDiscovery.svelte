@@ -1,7 +1,7 @@
 <script lang="ts">
   import { type Filter, type Event } from "nostr-tools";
   import { toast } from "svelte-sonner";
-  import { discoveredMints, pool } from "../../lib/stores.svelte";
+  import { discoveredMints, pool } from "../../state/stores/printing.svelte";
   import { DEFAULT_RELAYS } from "../../nostr";
   import { delay } from "../../lib/utils";
 

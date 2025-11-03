@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { formatAmount } from "../utils";
+  import { formatAmount } from "../../../lib/utils";
 
   let {
     selectedNumberOfNotes,

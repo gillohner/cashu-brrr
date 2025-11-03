@@ -1,6 +1,6 @@
 <script lang="ts">
   import { formatAmount } from "../../lib/utils";
-  import LnInvoice from "../../lib/comp/LNInvoice.svelte";
+  import LnInvoice from "../../features/printing/components/LNInvoice.svelte";
 
   interface Props {
     selectedTab?: string;
@@ -21,14 +21,18 @@
   let inputToken = $state("");
   let isLoading = $state(false);
 
-  const handlePaste = () => {
+  const handlePaste = async (e: ClipboardEvent) => {
     if (onEcashPaste) {
-      isLoading = true;
-      onEcashPaste(inputToken);
-      setTimeout(() => {
-        inputToken = "";
-        isLoading = false;
-      }, 500);
+      e.preventDefault();
+      const pastedText = e.clipboardData?.getData('text') || '';
+      if (pastedText) {
+        isLoading = true;
+        onEcashPaste(pastedText);
+        setTimeout(() => {
+          inputToken = "";
+          isLoading = false;
+        }, 500);
+      }
     }
   };
 </script>

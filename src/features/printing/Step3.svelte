@@ -15,16 +15,16 @@
     step,
     wallet,
     type Print,
-  } from "./stores.svelte";
+  } from "../../state/stores/printing.svelte";
   import {
     createOutputAmount,
     createOutputAmounts,
     formatAmount,
     getAmountForTokenSet,
-  } from "./utils";
+  } from "../../lib/utils";
   import { toast } from "svelte-sonner";
-  import { NUTSTASH_PUBKEY, sendViaNostr } from "../nostr";
-  import PaymentMethod from "../components/ui/PaymentMethod.svelte";
+  import { NUTSTASH_PUBKEY, sendViaNostr } from "../../nostr";
+  import PaymentMethod from "../../components/ui/PaymentMethod.svelte";
 
   let tab = $state("ecash");
 

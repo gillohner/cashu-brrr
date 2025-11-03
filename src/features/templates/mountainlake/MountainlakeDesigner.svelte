@@ -5,7 +5,7 @@
     downloadTemplate, 
     loadTemplateFromFile,
     type MountainlakeTemplateConfig
-  } from "../../lib/utils/mountainlake-templates";
+  } from "./mountainlake-templates";
 
   interface GradientStop {
     offset: number;
