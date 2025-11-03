@@ -9,7 +9,7 @@ import type {
   Token,
 } from "@cashu/cashu-ts";
 import { writable } from "svelte/store";
-import type { Mint } from "./utils";
+import type { Mint } from "../../lib/utils";
 import { SimplePool } from "nostr-tools";
 
 // Types
