@@ -11,16 +11,15 @@ There are no central banks if everyone is a central bank.
 - ⚡ **Lightning & Ecash payments** - Flexible payment options
 - 📄 **QR code optimization** - Smart denomination suggestions for readable QR
   codes
-- � **Print history** - Reprint previous notes easily
-- �️ **Mountainlake mint default** - Pre-configured with trusted mint
+- 🗂️ **Print history** - Reprint previous notes easily
 
 ## How to use
 
 1. Go to `http://brrr.gandlaf.com`
 2. Select the cashu mint you want to use
 3. Select the denomination and number of notes you want to print
-4. Design and Customize your notes
-5. Pay using ecash or lightning
+4. Pay using ecash or lightning
+5. Design and Customize your notes
 6. Printer goes brrr
 
 ## Requirements
@@ -30,7 +29,7 @@ There are no central banks if everyone is a central bank.
 
 ## Running local development environment
 
-1. Clone the repository
+1. Fork and Clone the repository
    ```bash
    git clone https://github.com/yourusername/cashu-brrr.git
    cd cashu-brrr
@@ -47,8 +46,6 @@ There are no central banks if everyone is a central bank.
    ```
 
 4. Open `http://localhost:5173` in your browser
-
-## Testing
 
 ```bash
 # Run all tests
@@ -75,24 +72,6 @@ npm run test:coverage
    npm run preview
    ```
 
-## Architecture
-
-The codebase uses a modern, modular architecture:
-
-- **Modular Note Templates**: Composable note components (QR, Logo, Text,
-  Denomination)
-- **Storage Abstraction**: Support for LocalStorage and Pubky
-- **Type Safety**: Strict TypeScript throughout
-- **Testing**: Comprehensive test coverage with Vitest
-- **State Management**: Centralized Svelte stores
-
-See [ARCHITECTURE.md](ARCHITECTURE.md) for detailed documentation.
-
-## Migration Guide
-
-If you're upgrading from the legacy codebase, see [MIGRATION.md](MIGRATION.md)
-for step-by-step instructions.
-
 ## Project Structure
 
 ```
@@ -105,24 +84,21 @@ src/
 └── state/              # State management
 ```
 
-## Documentation
-
-- [ARCHITECTURE.md](ARCHITECTURE.md) - System architecture and design patterns
-- [MIGRATION.md](MIGRATION.md) - Migration guide from legacy code
-- [REFACTORING_SUMMARY.md](REFACTORING_SUMMARY.md) - Summary of refactoring work
-
-## Contributing
-
-We welcome contributions! Please:
-
-1. Follow the architecture patterns in `ARCHITECTURE.md`
-2. Add tests for new features
-3. Maintain type safety
-4. Update documentation as needed
-
 ## License
 
-MIT
+This project is licensed under the GNU General Public License v3.0 - see the
+[LICENSE](LICENSE) file for details.
+
+### GNU GPL v3.0
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
 ## Credits
 
