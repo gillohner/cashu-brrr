@@ -1,4 +1,12 @@
 <script lang="ts">
+  import { toast } from "svelte-sonner";
+  import { 
+    PRESET_TEMPLATES, 
+    downloadTemplate, 
+    loadTemplateFromFile,
+    type MountainlakeTemplateConfig
+  } from "../../lib/utils/mountainlake-templates";
+
   interface GradientStop {
     offset: number;
     color: string;
@@ -167,12 +175,342 @@
   void gradientType;
   void radialCenterX;
   void radialCenterY;
+
+  // Template management state
+  let selectedPreset = $state<string>("");
+  let templateName = $state<string>("My Custom Template");
+  let templateAuthor = $state<string>("");
+
+  /**
+   * Apply all properties from a template config to the current design
+   */
+  function applyConfigToBindings(config: MountainlakeTemplateConfig) {
+    // Background
+    bgGradientType = config.bgGradientType;
+    bgSolidColor = config.bgSolidColor;
+    gradientAngle = config.gradientAngle;
+    gradientStops = [...config.gradientStops];
+    
+    // Top Left Icon
+    enableTopLeftIcon = config.enableTopLeftIcon;
+    topLeftIcon = config.topLeftIcon;
+    customLogoUrl = config.customLogoUrl;
+    topLeftIconColor = config.topLeftIconColor;
+    enableIconColorOverride = config.enableIconColorOverride;
+    topLeftIconSize = config.topLeftIconSize;
+    topLeftIconX = config.topLeftIconX;
+    topLeftIconY = config.topLeftIconY;
+    topLeftIconOpacity = config.topLeftIconOpacity;
+    
+    // Top Right Text
+    enableHeaderText = config.enableHeaderText;
+    headerText = config.headerText;
+    headerTextColor = config.headerTextColor;
+    headerTextX = config.headerTextX;
+    headerTextY = config.headerTextY;
+    
+    // QR Code
+    enableQrCode = config.enableQrCode;
+    qrGradientType = config.qrGradientType;
+    qrGradientAngle = config.qrGradientAngle;
+    qrGradientStops = [...config.qrGradientStops];
+    qrBackgroundColor = config.qrBackgroundColor;
+    qrBorderColor = config.qrBorderColor;
+    qrCodeColor = config.qrCodeColor;
+    disableQrBorder = config.disableQrBorder;
+    disableQrBackground = config.disableQrBackground;
+    qrX = config.qrX;
+    qrY = config.qrY;
+    qrSize = config.qrSize;
+    
+    // Bottom
+    enableDenomination = config.enableDenomination;
+    denominationColor = config.denominationColor;
+    bottomBoxColor = config.bottomBoxColor;
+    bottomTextColor = config.bottomTextColor;
+    customBottomText = config.customBottomText;
+    denominationX = config.denominationX;
+    denominationY = config.denominationY;
+    
+    // Custom Images
+    customImages = [...config.customImages];
+    
+    // Guide Text
+    enableGuideText = config.enableGuideText;
+    guideText = config.guideText;
+    guideTextColor = config.guideTextColor;
+    guideBackgroundColor = config.guideBackgroundColor;
+    guideBorderColor = config.guideBorderColor;
+    disableGuideBorder = config.disableGuideBorder;
+    disableGuideBackground = config.disableGuideBackground;
+    guideX = config.guideX;
+    guideY = config.guideY;
+    guideWidth = config.guideWidth;
+    guideHeight = config.guideHeight;
+  }
+
+  /**
+   * Get current design as a config object
+   */
+  function getCurrentConfig(): MountainlakeTemplateConfig {
+    return {
+      bgGradientType,
+      gradientType: bgGradientType === 'solid' ? 'linear' : (bgGradientType as 'linear' | 'radial'),
+      bgSolidColor,
+      gradientAngle,
+      gradientStops: [...gradientStops],
+      radialCenterX: radialCenterX ?? 50,
+      radialCenterY: radialCenterY ?? 50,
+      
+      enableTopLeftIcon,
+      topLeftIcon,
+      customLogoUrl,
+      topLeftIconColor,
+      enableIconColorOverride,
+      topLeftIconSize,
+      topLeftIconX,
+      topLeftIconY,
+      topLeftIconOpacity,
+      
+      enableHeaderText,
+      headerText,
+      headerTextColor,
+      headerTextX,
+      headerTextY,
+      
+      enableQrCode,
+      qrGradientType,
+      qrGradientAngle,
+      qrGradientStops: [...qrGradientStops],
+      qrBackgroundColor,
+      qrBorderColor,
+      qrCodeColor,
+      disableQrBorder,
+      disableQrBackground,
+      qrX,
+      qrY,
+      qrSize,
+      
+      enableDenomination,
+      denominationColor,
+      bottomBoxColor,
+      bottomTextColor,
+      customBottomText,
+      denominationX,
+      denominationY,
+      
+      customImages: [...customImages],
+      
+      enableGuideText,
+      guideText,
+      guideTextColor,
+      guideBackgroundColor,
+      guideBorderColor,
+      disableGuideBorder,
+      disableGuideBackground,
+      guideX,
+      guideY,
+      guideWidth,
+      guideHeight,
+    };
+  }
+
+  /**
+   * Apply a preset template
+   */
+  function applyPreset() {
+    if (!selectedPreset) return;
+    
+    const template = PRESET_TEMPLATES.find(t => t.name === selectedPreset);
+    if (!template) return;
+    
+    // Store current side
+    const currentSide = activeSide;
+    
+    // Apply front design
+    activeSide = 'front';
+    applyConfigToBindings(template.front);
+    
+    // Apply back design
+    activeSide = 'back';
+    applyConfigToBindings(template.back);
+    
+    // Restore original side
+    activeSide = currentSide;
+    
+    // Enable backside for templates
+    enableBackside = true;
+    
+    toast.success(`Applied template: ${template.name}`);
+  }
+
+  /**
+   * Download current design as template
+   */
+  function handleDownloadTemplate() {
+    if (!templateName.trim()) {
+      toast.error("Please enter a template name");
+      return;
+    }
+    
+    try {
+      // Get current configs for both sides
+      const currentSide = activeSide;
+      
+      // Get front config
+      activeSide = 'front';
+      const frontConfig = getCurrentConfig();
+      
+      // Get back config
+      activeSide = 'back';
+      const backConfig = getCurrentConfig();
+      
+      // Restore original side
+      activeSide = currentSide;
+      
+      downloadTemplate(templateName, frontConfig, backConfig, templateAuthor || undefined);
+      toast.success(`Template "${templateName}" downloaded!`);
+    } catch (error) {
+      toast.error("Failed to download template: " + (error instanceof Error ? error.message : "Unknown error"));
+    }
+  }
+
+  /**
+   * Upload and apply template from file
+   */
+  async function handleUploadTemplate(e: Event) {
+    const target = e.target as HTMLInputElement;
+    if (!target.files || target.files.length === 0) return;
+    
+    try {
+      const template = await loadTemplateFromFile(target.files[0]);
+      
+      // Store current side
+      const currentSide = activeSide;
+      
+      // Apply front design
+      activeSide = 'front';
+      applyConfigToBindings(template.front);
+      
+      // Apply back design  
+      activeSide = 'back';
+      applyConfigToBindings(template.back);
+      
+      // Restore original side
+      activeSide = currentSide;
+      
+      // Enable backside
+      enableBackside = true;
+      
+      toast.success(`Loaded template: ${template.name}`);
+      
+      // Clear file input
+      target.value = '';
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to load template");
+      target.value = '';
+    }
+  }
 </script>
 
 <div class="bg-base-200 rounded-lg p-4 space-y-2">
   <div class="flex items-center justify-between mb-3">
     <h3 class="font-semibold">Mountainlake Design</h3>
     <span class="badge badge-sm badge-info">Fully Customizable</span>
+  </div>
+
+  <!-- Template Management Section -->
+  <div class="collapse collapse-arrow bg-base-300 rounded-lg mb-4">
+    <input type="checkbox" checked />
+    <div class="collapse-title text-sm font-medium flex items-center gap-2">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z" />
+      </svg>
+      Template Manager
+    </div>
+    <div class="collapse-content space-y-3">
+      <!-- Preset Templates -->
+      <div class="form-control">
+        <div class="pb-1">
+          <span class="text-xs font-medium">Load Preset Template</span>
+        </div>
+        <div class="flex gap-2">
+          <select 
+            bind:value={selectedPreset} 
+            class="select select-bordered select-sm flex-1"
+          >
+            <option value="">Choose a preset...</option>
+            {#each PRESET_TEMPLATES as template}
+              <option value={template.name}>{template.name}</option>
+            {/each}
+          </select>
+          <button 
+            class="btn btn-primary btn-sm"
+            onclick={applyPreset}
+            disabled={!selectedPreset}
+          >
+            Apply
+          </button>
+        </div>
+        {#if selectedPreset}
+          {@const template = PRESET_TEMPLATES.find(t => t.name === selectedPreset)}
+          {#if template}
+            <p class="text-xs opacity-70 mt-1">{template.description}</p>
+          {/if}
+        {/if}
+      </div>
+
+      <div class="divider text-xs my-1">OR</div>
+
+      <!-- Upload Template -->
+      <div class="form-control">
+        <div class="pb-1 flex items-center justify-between">
+          <span class="text-xs font-medium">Upload Custom Template</span>
+          <span class="text-xs opacity-60">.mountainlake.json</span>
+        </div>
+        <input 
+          type="file" 
+          accept=".json,.mountainlake.json"
+          class="file-input file-input-bordered file-input-sm w-full"
+          oninput={handleUploadTemplate}
+        />
+      </div>
+
+      <div class="divider text-xs my-1">OR</div>
+
+      <!-- Download Current Design -->
+      <div class="form-control">
+        <div class="pb-1">
+          <span class="text-xs font-medium">Save Current Design as Template</span>
+        </div>
+        <div class="space-y-2">
+          <input 
+            type="text" 
+            bind:value={templateName}
+            placeholder="Template name (required)"
+            class="input input-bordered input-sm w-full"
+          />
+          <input 
+            type="text" 
+            bind:value={templateAuthor}
+            placeholder="Your name (optional)"
+            class="input input-bordered input-sm w-full"
+          />
+          <button 
+            class="btn btn-outline btn-sm w-full gap-2"
+            onclick={handleDownloadTemplate}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+            </svg>
+            Download Template File
+          </button>
+          <p class="text-xs opacity-60">
+            💡 Download includes both front and back designs with all customizations
+          </p>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Enable Backside Toggle -->
