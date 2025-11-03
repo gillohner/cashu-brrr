@@ -725,7 +725,7 @@
           title="Fully customizable Mountainlake design"
         >
           <div class="text-xs font-medium mb-1">Mountainlake</div>
-          <div class="w-full scale-75 origin-top">
+          <div class="w-full origin-top">
             <MountainlakeNote
               denomination={getAmountForTokenSet(
                 $preparedTokens[0]?.proofs ?? [],
