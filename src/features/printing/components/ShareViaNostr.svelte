@@ -14,7 +14,6 @@
     formatAmount,
     getAmountForTokenSet,
   } from "../../../lib/utils";
-  import { encodeInvisible } from "../../../lib/emoji-encoding";
 
   let addressBookNpub = $state("");
 
@@ -28,18 +27,6 @@
       toast.success(`Token #${index + 1} copied to clipboard!`);
     } catch (error) {
       toast.error("Failed to copy to clipboard");
-      console.error(error);
-    }
-  };
-
-  const copyTokenAsNut = async (token: any, index: number) => {
-    const encodedToken = getEncodedTokenV4(token);
-    const nut = `🥜${encodeInvisible(encodedToken)}`;
-    try {
-      await navigator.clipboard.writeText(nut);
-      toast.success(`Token #${index + 1} copied as 🥜 to clipboard!`);
-    } catch (error) {
-      toast.error("Failed to copy 🥜 to clipboard");
       console.error(error);
     }
   };
@@ -172,13 +159,6 @@
               >
                 <Copy size={20} />
                 Copy
-              </button>
-              <button
-                class="btn btn-secondary gap-2"
-                title="Copy as invisible 🥜 for messenger-friendly sharing"
-                onclick={() => copyTokenAsNut(token, index)}
-              >
-                🥜 Copy
               </button>
             </div>
           </div>
