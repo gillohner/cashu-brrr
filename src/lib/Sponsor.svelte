@@ -10,7 +10,7 @@
 <a target="_blank" class="p-1 rounded-full bg-base-300 transition-all hover:bg-base-200 flex gap-1 items-center w-min border-2 {sponsor.tier==="GOLD"?"border-yellow-400": sponsor.tier==="SILVER"?"border-slate-400":"border-orange-700"}" href="{sponsor.link}">
     <div class="avatar">
       <div class="w-12 rounded-full">
-        <img src="{sponsor.imageLink}"/>
+        <img src="{sponsor.imageLink}" alt="{sponsor.name}"/>
       </div>
     </div>
     <p class="text-nowrap text pr-2 font-bold flex flex-col">
