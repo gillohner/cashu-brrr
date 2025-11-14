@@ -352,22 +352,75 @@ export const PRESET_TEMPLATES: MountainlakeTemplate[] = [
 ];
 
 /**
+ * Convert a blob URL to a data URL
+ */
+async function blobUrlToDataUrl(blobUrl: string): Promise<string> {
+  try {
+    const response = await fetch(blobUrl);
+    const blob = await response.blob();
+    
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  } catch (error) {
+    console.error('Failed to convert blob URL to data URL:', error);
+    return ''; // Return empty string if conversion fails
+  }
+}
+
+/**
+ * Convert blob URLs to data URLs in a config
+ */
+async function convertBlobUrlsToDataUrls(config: MountainlakeTemplateConfig): Promise<MountainlakeTemplateConfig> {
+  const newConfig = { ...config };
+  
+  // Convert customLogoUrl if it's a blob URL
+  if (newConfig.customLogoUrl && newConfig.customLogoUrl.startsWith('blob:')) {
+    newConfig.customLogoUrl = await blobUrlToDataUrl(newConfig.customLogoUrl);
+  }
+  
+  // Convert custom images
+  if (newConfig.customImages && newConfig.customImages.length > 0) {
+    newConfig.customImages = await Promise.all(
+      newConfig.customImages.map(async (img) => {
+        if (img.url && img.url.startsWith('blob:')) {
+          return {
+            ...img,
+            url: await blobUrlToDataUrl(img.url)
+          };
+        }
+        return img;
+      })
+    );
+  }
+  
+  return newConfig;
+}
+
+/**
  * Export template as JSON file
  */
-export function downloadTemplate(
+export async function downloadTemplate(
   name: string,
   front: MountainlakeTemplateConfig,
   back: MountainlakeTemplateConfig,
   author?: string
-): void {
+): Promise<void> {
+  // Convert blob URLs to data URLs before saving
+  const frontWithDataUrls = await convertBlobUrlsToDataUrls(front);
+  const backWithDataUrls = await convertBlobUrlsToDataUrls(back);
+  
   const template: MountainlakeTemplate = {
     name,
     description: `Custom template: ${name}`,
     author: author || "Custom User",
     version: "1.0",
     createdAt: new Date().toISOString(),
-    front,
-    back,
+    front: frontWithDataUrls,
+    back: backWithDataUrls,
   };
 
   const json = JSON.stringify(template, null, 2);

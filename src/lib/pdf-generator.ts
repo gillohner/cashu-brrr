@@ -5,12 +5,13 @@ export interface NoteData {
   backSvg?: string;
   id: string;
   rotation?: number; // 0 for landscape (no rotation), 90 for portrait (rotate 90°)
+  dimensions?: { width: number; height: number }; // Optional: detected dimensions in mm
 }
 
 // A4 Portrait constants - FIXED configuration
 const A4_WIDTH = 210; // mm
 const A4_HEIGHT = 297; // mm
-const BLEED = 5; // mm - fixed 5mm bleed on sides and between notes
+const BLEED = 5; // mm - fixed 10mm bleed on sides and between notes
 const NOTES_PER_PAGE = 3; // Always 3 notes per page, stacked vertically
 const DPI_SCALE = 4; // High quality rendering (4x resolution for crisp text)
 
@@ -56,22 +57,42 @@ export function detectNoteDimensions(svgString: string): { width: number; height
 }
 
 /**
- * Calculate optimal note size for A4 portrait with 3 notes stacked vertically
- * The note is rotated 90° so its long side is horizontal (full A4 width)
- * 
- * Layout: 140mm (width) x 100mm (height) per note after rotation
- * This gives us: 
- * - Width: 210mm (A4 width) - 2*5mm (side bleed) = 200mm available → use 140mm
- * - Height per note: (297mm - 4*5mm bleed spaces) / 3 = (297-20)/3 = 92.3mm → use 100mm with spacing
+ * Calculate the fitted dimensions for a note to fit on A4 page with 3 notes stacked
+ * Handles different aspect ratios and centers them properly
+ * For portrait notes (rotation 90/270), uses almost full width (~155mm) for better print quality
  */
-function calculateNoteSize(): { noteWidth: number; noteHeight: number } {
-  // After 90° rotation: width becomes the long dimension (horizontal on A4)
-  const rotatedWidth = 140; // mm - uses most of A4 width (200mm - margins)
-  const rotatedHeight = 80; // mm - fits 3 stacked with bleed
+function calculateNoteFit(
+  originalWidth: number,
+  originalHeight: number,
+  rotation: number
+): { fittedWidth: number; fittedHeight: number } {
+  // Available space - use more aggressive margins for portrait notes
+  const isPortrait = rotation === 90 || rotation === 270;
+  
+  // Cut marks extend: 2mm gap + 5mm mark = 7mm on each side
+  const CUT_MARK_SPACE = 7;
+  
+  // For portrait notes: use 155mm width (leaves room for cut marks and margins)
+  // For landscape notes: use standard available width with bleed
+  const targetWidth = isPortrait ? 155 : A4_WIDTH - (2 * BLEED) - (2 * CUT_MARK_SPACE);
+  
+  // Calculate available height per note, accounting for cut marks
+  const totalVerticalSpace = A4_HEIGHT - (2 * BLEED);
+  const spacePerNote = totalVerticalSpace / NOTES_PER_PAGE;
+  const availableHeightPerNote = spacePerNote - (2 * CUT_MARK_SPACE);
+  
+  // Dimensions after rotation
+  const rotatedWidth = isPortrait ? originalHeight : originalWidth;
+  const rotatedHeight = isPortrait ? originalWidth : originalHeight;
+  
+  // Calculate scale to fit
+  const scaleX = targetWidth / rotatedWidth;
+  const scaleY = availableHeightPerNote / rotatedHeight;
+  const scale = Math.min(scaleX, scaleY); // Allow scaling up for small SVGs like Mountainlake
   
   return {
-    noteWidth: rotatedHeight,  // Original width before rotation
-    noteHeight: rotatedWidth   // Original height before rotation (becomes horizontal)
+    fittedWidth: rotatedWidth * scale,
+    fittedHeight: rotatedHeight * scale
   };
 }
 
@@ -165,35 +186,36 @@ async function addSvgToPdf(
 }
 
 /**
- * Draw cut marks at corners of a note
+ * Draw professional crop/cut marks (registration marks) for printing
+ * Uses standard printing industry style with marks extending beyond the trim area
  */
 function drawCutMarks(pdf: jsPDF, x: number, y: number, width: number, height: number): void {
-  const markLength = 3; // mm
-  const offset = 2; // mm from note edge
+  const markLength = 5; // mm - longer marks for easier cutting
+  const gap = 2; // mm - gap between mark and trim edge
   
   pdf.setDrawColor(0, 0, 0);
-  pdf.setLineWidth(0.1);
+  pdf.setLineWidth(0.25); // Professional mark thickness
   
-  // Top-left
-  pdf.line(x - offset - markLength, y - offset, x - offset, y - offset); // Horizontal
-  pdf.line(x - offset, y - offset - markLength, x - offset, y - offset); // Vertical
+  // Top-left corner
+  pdf.line(x - gap - markLength, y, x - gap, y); // Horizontal mark (left of corner)
+  pdf.line(x, y - gap - markLength, x, y - gap); // Vertical mark (above corner)
   
-  // Top-right
-  pdf.line(x + width + offset, y - offset, x + width + offset + markLength, y - offset); // Horizontal
-  pdf.line(x + width + offset, y - offset - markLength, x + width + offset, y - offset); // Vertical
+  // Top-right corner
+  pdf.line(x + width + gap, y, x + width + gap + markLength, y); // Horizontal mark (right of corner)
+  pdf.line(x + width, y - gap - markLength, x + width, y - gap); // Vertical mark (above corner)
   
-  // Bottom-left
-  pdf.line(x - offset - markLength, y + height + offset, x - offset, y + height + offset); // Horizontal
-  pdf.line(x - offset, y + height + offset, x - offset, y + height + offset + markLength); // Vertical
+  // Bottom-left corner
+  pdf.line(x - gap - markLength, y + height, x - gap, y + height); // Horizontal mark (left of corner)
+  pdf.line(x, y + height + gap, x, y + height + gap + markLength); // Vertical mark (below corner)
   
-  // Bottom-right
-  pdf.line(x + width + offset, y + height + offset, x + width + offset + markLength, y + height + offset); // Horizontal
-  pdf.line(x + width + offset, y + height + offset, x + width + offset, y + height + offset + markLength); // Vertical
+  // Bottom-right corner
+  pdf.line(x + width + gap, y + height, x + width + gap + markLength, y + height); // Horizontal mark (right of corner)
+  pdf.line(x + width, y + height + gap, x + width, y + height + gap + markLength); // Vertical mark (below corner)
 }
 
 /**
  * Generate PDF with notes
- * Fixed layout: A4 Portrait, 3 notes per page, optional rotation, 5mm bleed
+ * Adaptive layout: A4 Portrait, 3 notes per page, proper centering for all templates
  */
 export async function generatePdf(
   notes: NoteData[],
@@ -207,20 +229,9 @@ export async function generatePdf(
     format: 'a4',
   });
   
-  const { noteWidth, noteHeight } = calculateNoteSize();
-  
-  // After 90° rotation, dimensions swap
-  const rotatedNoteWidth = noteHeight; // 140mm (horizontal)
-  const rotatedNoteHeight = noteWidth; // 80mm (vertical)
-  
-  // Calculate positions for 3 notes stacked vertically
-  // Left margin to center notes horizontally
-  const leftMargin = (A4_WIDTH - rotatedNoteWidth - 2 * BLEED) / 2;
-  
   // Vertical spacing
-  const totalVerticalSpace = A4_HEIGHT - 2 * BLEED; // Total space minus top/bottom bleed
+  const totalVerticalSpace = A4_HEIGHT - 2 * BLEED;
   const spacePerNote = totalVerticalSpace / NOTES_PER_PAGE;
-  const noteSpacing = (spacePerNote - rotatedNoteHeight) / 2;
   
   let isFirstPage = true;
   const totalOperations = enableDoubleSided ? notes.length * 2 : notes.length;
@@ -245,15 +256,28 @@ export async function generatePdf(
       for (let i = 0; i < notesOnThisPage.length; i++) {
         const note = notesOnThisPage[i];
         
-        const x = leftMargin + BLEED;
-        const y = BLEED + i * spacePerNote + noteSpacing;
+        // Get dimensions - detect from SVG or use provided dimensions
+        const dims = note.dimensions || detectNoteDimensions(note.frontSvg) || { width: 80, height: 140 };
+        const rotation = note.rotation ?? 90;
+        
+        // Calculate fitted size and positioning
+        const { fittedWidth, fittedHeight } = calculateNoteFit(dims.width, dims.height, rotation);
+        
+        // Center horizontally
+        const x = (A4_WIDTH - fittedWidth) / 2;
+        
+        // Center vertically within this note's slot
+        const slotY = BLEED + i * spacePerNote;
+        const y = slotY + (spacePerNote - fittedHeight) / 2;
         
         // Draw cut marks
-        drawCutMarks(pdf, x, y, rotatedNoteWidth, rotatedNoteHeight);
+        drawCutMarks(pdf, x, y, fittedWidth, fittedHeight);
         
-        // Add front SVG with rotation (90° for portrait notes, 0° for landscape)
-        const rotation = note.rotation ?? 90;
-        await addSvgToPdf(pdf, note.frontSvg, x, y, noteWidth, noteHeight, rotation);
+        // Add front SVG with rotation - use fitted dimensions for proper scaling
+        // For rotated notes, swap dimensions back since addSvgToPdf will rotate them
+        const pdfWidth = rotation === 90 || rotation === 270 ? fittedHeight : fittedWidth;
+        const pdfHeight = rotation === 90 || rotation === 270 ? fittedWidth : fittedHeight;
+        await addSvgToPdf(pdf, note.frontSvg, x, y, pdfWidth, pdfHeight, rotation);
         
         currentOperation++;
         if (onProgress) {
@@ -277,17 +301,27 @@ export async function generatePdf(
             continue;
           }
           
-          const x = leftMargin + BLEED;
-          const y = BLEED + i * spacePerNote + noteSpacing;
+          // Get dimensions (detect from back SVG or use front dimensions)
+          const dims = note.dimensions || detectNoteDimensions(note.backSvg) || detectNoteDimensions(note.frontSvg) || { width: 80, height: 140 };
+          const frontRotation = note.rotation ?? 90;
+          
+          // Calculate fitted size (should match front for alignment)
+          const { fittedWidth, fittedHeight } = calculateNoteFit(dims.width, dims.height, frontRotation);
+          
+          // Use EXACT same position as front
+          const x = (A4_WIDTH - fittedWidth) / 2;
+          const slotY = BLEED + i * spacePerNote;
+          const y = slotY + (spacePerNote - fittedHeight) / 2;
           
           // Draw cut marks in EXACT same position as front
-          drawCutMarks(pdf, x, y, rotatedNoteWidth, rotatedNoteHeight);
+          drawCutMarks(pdf, x, y, fittedWidth, fittedHeight);
           
           // Add back SVG with 180° additional rotation for proper flip
-          // When the physical paper is flipped on short edge, this ensures correct orientation
-          const frontRotation = note.rotation ?? 90;
           const backRotation = (frontRotation + 180) % 360;
-          await addSvgToPdf(pdf, note.backSvg, x, y, noteWidth, noteHeight, backRotation);
+          // For rotated notes, swap dimensions back since addSvgToPdf will rotate them
+          const pdfWidth = frontRotation === 90 || frontRotation === 270 ? fittedHeight : fittedWidth;
+          const pdfHeight = frontRotation === 90 || frontRotation === 270 ? fittedWidth : fittedHeight;
+          await addSvgToPdf(pdf, note.backSvg, x, y, pdfWidth, pdfHeight, backRotation);
           
           currentOperation++;
           if (onProgress) {
@@ -308,16 +342,28 @@ export async function generatePdf(
       }
       isFirstPage = false;
       
-      // Calculate position
-      const x = leftMargin + BLEED;
-      const y = BLEED + positionOnPage * spacePerNote + noteSpacing;
+      // Get dimensions
+      const dims = note.dimensions || detectNoteDimensions(note.frontSvg) || { width: 80, height: 140 };
+      const rotation = note.rotation ?? 90;
+      
+      // Calculate fitted size and positioning
+      const { fittedWidth, fittedHeight } = calculateNoteFit(dims.width, dims.height, rotation);
+      
+      // Center horizontally
+      const x = (A4_WIDTH - fittedWidth) / 2;
+      
+      // Center vertically within this note's slot
+      const slotY = BLEED + positionOnPage * spacePerNote;
+      const y = slotY + (spacePerNote - fittedHeight) / 2;
       
       // Draw cut marks
-      drawCutMarks(pdf, x, y, rotatedNoteWidth, rotatedNoteHeight);
+      drawCutMarks(pdf, x, y, fittedWidth, fittedHeight);
       
-      // Add SVG with rotation (90° for portrait notes, 0° for landscape)
-      const rotation = note.rotation ?? 90;
-      await addSvgToPdf(pdf, note.frontSvg, x, y, noteWidth, noteHeight, rotation);
+      // Add SVG with rotation - use fitted dimensions for proper scaling
+      // For rotated notes, swap dimensions back since addSvgToPdf will rotate them
+      const pdfWidth = rotation === 90 || rotation === 270 ? fittedHeight : fittedWidth;
+      const pdfHeight = rotation === 90 || rotation === 270 ? fittedWidth : fittedHeight;
+      await addSvgToPdf(pdf, note.frontSvg, x, y, pdfWidth, pdfHeight, rotation);
       
       currentOperation++;
       if (onProgress) {

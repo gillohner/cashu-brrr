@@ -216,6 +216,11 @@
     activeSide === "front" ? frontDesign : backDesign,
   );
 
+  // Get opposite side config for copying
+  const oppositeSideConfig = $derived(
+    activeSide === "front" ? backDesign : frontDesign,
+  );
+
   // Mountainlake note configuration - LEGACY (for backward compatibility during migration)
   let topLeftIcon = $state<
     | "cashu-logo"
@@ -293,7 +298,77 @@
   // PDF Generation state
   let isGeneratingPdf = $state(false);
   let pdfProgress = $state({ current: 0, total: 0 });
-  let showPrintInstructions = $state(false);
+
+  /**
+   * Wait for images and QR code to be ready
+   */
+  const waitForImagesToLoad = async (container: HTMLElement, noteIndex: number): Promise<void> => {
+    // Find all SVG image elements with any href
+    const svgImages = container.querySelectorAll('image[href]');
+    const imagePromises: Promise<void>[] = [];
+    let imageCount = 0;
+    
+    svgImages.forEach((svgImg, idx) => {
+      const href = svgImg.getAttribute('href');
+      if (!href) return;
+      
+      // Skip data URLs (they load instantly)
+      if (href.startsWith('data:')) return;
+      
+      // Wait for all external images (blob URLs, http/https URLs, and relative paths like /icon.svg)
+      if (href.startsWith('blob:') || href.startsWith('http') || href.startsWith('/')) {
+        imageCount++;
+        const imageType = href.startsWith('blob:') ? 'blob' : href.startsWith('http') ? 'http' : 'local';
+        console.log(`[Note ${noteIndex}] Found ${imageType} image ${idx}: ${href.substring(0, 60)}`);
+        
+        const promise = new Promise<void>((resolve) => {
+          const img = new Image();
+          let resolved = false;
+          
+          const cleanup = () => {
+            if (!resolved) {
+              resolved = true;
+              resolve();
+            }
+          };
+          
+          img.onload = () => {
+            console.log(`[Note ${noteIndex}] ✓ ${imageType} image ${idx} loaded (${img.naturalWidth}x${img.naturalHeight})`);
+            cleanup();
+          };
+          
+          img.onerror = (e) => {
+            console.error(`[Note ${noteIndex}] ✗ ${imageType} image ${idx} FAILED:`, e);
+            cleanup();
+          };
+          
+          // Timeout after 5 seconds as safety net
+          const timeout = setTimeout(() => {
+            console.warn(`[Note ${noteIndex}] ⏱ ${imageType} image ${idx} timeout after 5s`);
+            cleanup();
+          }, 5000);
+          
+          // Clear timeout if image loads
+          img.addEventListener('load', () => clearTimeout(timeout), { once: true });
+          img.addEventListener('error', () => clearTimeout(timeout), { once: true });
+          
+          img.src = href;
+        });
+        
+        imagePromises.push(promise);
+      }
+    });
+    
+    // Wait for all images to load
+    if (imagePromises.length > 0) {
+      console.log(`[Note ${noteIndex}] ⏳ Waiting for ${imageCount} images...`);
+      await Promise.all(imagePromises);
+      console.log(`[Note ${noteIndex}] ✅ All ${imageCount} images complete`);
+    }
+    
+    // Additional wait for QR code canvas conversion (happens in onMount)
+    await new Promise(resolve => setTimeout(resolve, 400));
+  };
 
   /**
    * Generate and download PDF with all notes
@@ -317,6 +392,9 @@
 
       // Render each note and extract SVG
       for (let i = 0; i < $preparedTokens.length; i++) {
+        // Update progress for UI
+        pdfProgress = { current: i + 1, total: $preparedTokens.length };
+        
         const token = $preparedTokens[i];
         const tokenString = getEncodedTokenV4(token);
         const denomination = getAmountForTokenSet(token.proofs);
@@ -390,12 +468,14 @@
               guideHeight: frontDesign.guideHeight,
             },
           });
-
-          // Wait for component to render
-          await new Promise((resolve) => setTimeout(resolve, 200));
+          
+          // Wait for component to render and images to load (QR codes mainly)
+          await waitForImagesToLoad(frontDiv, i);
 
           const extractedFront = extractSvgFromElement(frontDiv);
-          if (extractedFront) frontSvg = extractedFront;
+          if (extractedFront) {
+            frontSvg = extractedFront;
+          }
 
           // Unmount component using Svelte 5 API
           unmount(frontComponent);
@@ -467,10 +547,12 @@
               },
             });
 
-            await new Promise((resolve) => setTimeout(resolve, 200));
+            await waitForImagesToLoad(backDiv, i);
 
             const extractedBack = extractSvgFromElement(backDiv);
-            if (extractedBack) backSvg = extractedBack;
+            if (extractedBack) {
+              backSvg = extractedBack;
+            }
 
             unmount(backComponent);
           }
@@ -490,7 +572,7 @@
             },
           });
 
-          await new Promise((resolve) => setTimeout(resolve, 200));
+          await waitForImagesToLoad(frontDiv, i);
 
           const extractedFront = extractSvgFromElement(frontDiv);
           if (extractedFront) frontSvg = extractedFront;
@@ -514,7 +596,7 @@
             },
           });
 
-          await new Promise((resolve) => setTimeout(resolve, 200));
+          await waitForImagesToLoad(frontDiv, i);
 
           const extractedFront = extractSvgFromElement(frontDiv);
           if (extractedFront) frontSvg = extractedFront;
@@ -536,8 +618,9 @@
       document.body.removeChild(container);
 
       // Generate PDF (auto double-sided if backside enabled)
-      const pdf = await generatePdf(notes, enableBackside, (current, total) => {
-        pdfProgress = { current, total };
+      pdfProgress = { current: $preparedTokens.length + 1, total: $preparedTokens.length };
+      const pdf = await generatePdf(notes, enableBackside, () => {
+        // All notes already rendered, just creating PDF now
       });
 
       // Download PDF
@@ -549,7 +632,6 @@
       toast.success(
         `PDF generated successfully! ${$preparedTokens.length} notes`,
       );
-      showPrintInstructions = true;
     } catch (error) {
       console.error("PDF generation failed:", error);
       toast.error(
@@ -641,7 +723,7 @@
 
 <!-- Tab Navigation -->
 <div class="flex w-full items-center justify-center">
-  <div role="tablist" class="tabs tabs-boxed min-w-80">
+  <div role="tablist" class="tabs tabs-boxed min-w-80 mb-2">
     <button
       role="tab"
       class="tab"
@@ -846,6 +928,7 @@
           <MountainlakeDesigner
             bind:enableBackside
             bind:activeSide
+            oppositeSideConfig={enableBackside ? oppositeSideConfig : undefined}
             bind:bgSectionOpen
             bind:topLeftSectionOpen
             bind:topRightSectionOpen
@@ -1152,65 +1235,29 @@
   </div>
 {:else if active === "print"}
   <div class="flex flex-col items-center gap-6 max-w-5xl mx-auto w-full px-4">
-    <!-- PDF Info Card -->
-    <div class="card bg-base-200 w-full max-w-2xl">
-      <div class="card-body">
-        <h3 class="card-title text-lg">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            class="w-6 h-6"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0 1 10.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0 .229 2.523a1.125 1.125 0 0 1-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0 0 21 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 0 0-1.913-.247M6.34 18H5.25A2.25 2.25 0 0 1 3 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 0 1 1.913-.247m10.5 0a48.536 48.536 0 0 0-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5Zm-3 0h.008v.008H15V10.5Z"
-            />
-          </svg>
-          Print-Ready PDF Generator
-        </h3>
-        <div class="space-y-2 text-sm">
-          <div class="flex items-start gap-2">
+    <!-- PDF Info and Instructions Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 w-full max-w-4xl">
+      <!-- PDF Info Card -->
+      <div class="card bg-base-200">
+        <div class="card-body">
+          <h3 class="card-title text-lg">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
               stroke-width="1.5"
               stroke="currentColor"
-              class="w-5 h-5 text-success mt-0.5 flex-shrink-0"
+              class="w-6 h-6"
             >
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
-                d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0 1 10.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0 .229 2.523a1.125 1.125 0 0 1-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0 0 21 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 0 0-1.913-.247M6.34 18H5.25A2.25 2.25 0 0 1 3 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 0 1 1.913-.247m10.5 0a48.536 48.536 0 0 0-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5Zm-3 0h.008v.008H15V10.5Z"
               />
             </svg>
-            <span><strong>A4 Portrait format</strong> - Industry standard</span>
-          </div>
-          <div class="flex items-start gap-2">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="1.5"
-              stroke="currentColor"
-              class="w-5 h-5 text-success mt-0.5 flex-shrink-0"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-              />
-            </svg>
-            <span
-              ><strong>3 notes per page</strong> stacked vertically (140mm × 80mm
-              each)</span
-            >
-          </div>
-          {#if selectedTemplate === "mountainlake"}
+            Print-Ready PDF
+          </h3>
+          <div class="space-y-2 text-sm">
             <div class="flex items-start gap-2">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -1226,69 +1273,8 @@
                   d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
                 />
               </svg>
-              <span
-                ><strong>90° rotation</strong> - Long side uses full A4 width</span
-              >
+              <span><strong>A4 Portrait</strong> format</span>
             </div>
-          {/if}
-          <div class="flex items-start gap-2">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="1.5"
-              stroke="currentColor"
-              class="w-5 h-5 text-success mt-0.5 flex-shrink-0"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-              />
-            </svg>
-            <span
-              ><strong>5mm bleed</strong> on sides and between notes for easy cutting</span
-            >
-          </div>
-          <div class="flex items-start gap-2">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="1.5"
-              stroke="currentColor"
-              class="w-5 h-5 text-success mt-0.5 flex-shrink-0"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-              />
-            </svg>
-            <span
-              ><strong>Corner cut marks</strong> for precise cutting guides</span
-            >
-          </div>
-          <div class="flex items-start gap-2">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="1.5"
-              stroke="currentColor"
-              class="w-5 h-5 text-success mt-0.5 flex-shrink-0"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-              />
-            </svg>
-            <span
-              ><strong>Maximum quality</strong> (4× resolution for crisp text)</span
-            >
-          </div>
-          {#if enableBackside}
             <div class="flex items-start gap-2">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -1296,21 +1282,35 @@
                 viewBox="0 0 24 24"
                 stroke-width="1.5"
                 stroke="currentColor"
-                class="w-5 h-5 text-info mt-0.5 flex-shrink-0"
+                class="w-5 h-5 text-success mt-0.5 flex-shrink-0"
               >
                 <path
                   stroke-linecap="round"
                   stroke-linejoin="round"
-                  d="M11.35 3.836c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m8.9-4.414c.376.023.75.05 1.124.08 1.131.094 1.976 1.057 1.976 2.192V16.5A2.25 2.25 0 0 1 18 18.75h-2.25m-7.5-10.5H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V18.75m-7.5-10.5h6.375c.621 0 1.125.504 1.125 1.125v9.25m-12 0A2.25 2.25 0 0 0 4.5 19.5h15a2.25 2.25 0 0 0 2.25-2.25m-18 0v-7.5A2.25 2.25 0 0 1 4.5 7.5h15a2.25 2.25 0 0 1 2.25 2.25v7.5"
+                  d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
                 />
               </svg>
-              <span
-                ><strong>Double-sided printing enabled</strong> - Fronts and backs
-                on consecutive pages</span
-              >
+              <span><strong>3 notes per page</strong></span>
             </div>
-          {/if}
-          {#if selectedTemplate !== "mountainlake"}
+            {#if selectedTemplate === "mountainlake"}
+              <div class="flex items-start gap-2">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  class="w-5 h-5 text-success mt-0.5 flex-shrink-0"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                  />
+                </svg>
+                <span><strong>90° rotation</strong></span>
+              </div>
+            {/if}
             <div class="flex items-start gap-2">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -1318,21 +1318,96 @@
                 viewBox="0 0 24 24"
                 stroke-width="1.5"
                 stroke="currentColor"
-                class="w-5 h-5 text-warning mt-0.5 flex-shrink-0"
+                class="w-5 h-5 text-success mt-0.5 flex-shrink-0"
               >
                 <path
                   stroke-linecap="round"
                   stroke-linejoin="round"
-                  d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"
+                  d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
                 />
               </svg>
-              <span
-                ><strong>Note:</strong>
-                {selectedTemplate === "comic" ? "Comic" : "Custom"} template does
-                not support backside design</span
-              >
+              <span><strong>5mm bleed</strong> for cutting</span>
             </div>
-          {/if}
+            <div class="flex items-start gap-2">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="w-5 h-5 text-success mt-0.5 flex-shrink-0"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                />
+              </svg>
+              <span><strong>Cut marks</strong> included</span>
+            </div>
+            <div class="flex items-start gap-2">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="w-5 h-5 text-success mt-0.5 flex-shrink-0"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                />
+              </svg>
+              <span><strong>High quality</strong> (4× resolution)</span>
+            </div>
+            {#if enableBackside}
+              <div class="flex items-start gap-2">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  class="w-5 h-5 text-info mt-0.5 flex-shrink-0"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M11.35 3.836c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m8.9-4.414c.376.023.75.05 1.124.08 1.131.094 1.976 1.057 1.976 2.192V16.5A2.25 2.25 0 0 1 18 18.75h-2.25m-7.5-10.5H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V18.75m-7.5-10.5h6.375c.621 0 1.125.504 1.125 1.125v9.25m-12 0A2.25 2.25 0 0 0 4.5 19.5h15a2.25 2.25 0 0 0 2.25-2.25m-18 0v-7.5A2.25 2.25 0 0 1 4.5 7.5h15a2.25 2.25 0 0 1 2.25 2.25v7.5"
+                  />
+                </svg>
+                <span><strong>Double-sided</strong> enabled</span>
+              </div>
+            {/if}
+          </div>
+        </div>
+      </div>
+
+      <!-- Printing Instructions Card -->
+      <div class="card bg-base-200">
+        <div class="card-body">
+          <h3 class="card-title text-lg">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="w-6 h-6"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z"
+              />
+            </svg>
+            How to Print
+          </h3>
+          <div class="text-xs font-mono bg-base-300 p-3 rounded whitespace-pre-wrap leading-relaxed">
+            {getPrintingInstructions(enableBackside)}
+          </div>
         </div>
       </div>
     </div>
@@ -1346,7 +1421,13 @@
       >
         {#if isGeneratingPdf}
           <span class="loading loading-spinner"></span>
-          Generating PDF... {pdfProgress.current}/{pdfProgress.total}
+          {#if pdfProgress.current === 0}
+            Preparing...
+          {:else if pdfProgress.current <= pdfProgress.total}
+            Rendering note {pdfProgress.current}/{pdfProgress.total}
+          {:else}
+            Creating PDF...
+          {/if}
         {:else}
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -1365,91 +1446,25 @@
           Generate Print-Ready PDF
         {/if}
       </button>
-    </div>
-
-    <!-- Printing Instructions -->
-    {#if showPrintInstructions}
-      <div class="card bg-base-100 w-full max-w-2xl border border-primary">
-        <div class="card-body">
-          <div class="flex items-center justify-between">
-            <h3 class="card-title text-primary">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                class="w-5 h-5"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z"
-                />
-              </svg>
-              Printing Instructions
-            </h3>
-            <button
-              class="btn btn-ghost btn-sm btn-circle"
-              onclick={() => (showPrintInstructions = false)}
-              aria-label="Close instructions"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                class="w-5 h-5"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M6 18 18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
-          </div>
-          <div
-            class="whitespace-pre-wrap text-sm font-mono bg-base-200 p-4 rounded-lg mt-2"
-          >
-            {getPrintingInstructions(enableBackside)}
-          </div>
+      
+      {#if isGeneratingPdf}
+        <div class="mt-2 text-center text-sm opacity-70">
+          {#if pdfProgress.current === 0}
+            Initializing PDF generation...
+          {:else if pdfProgress.current <= pdfProgress.total}
+            <div class="flex flex-col gap-1">
+              <progress 
+                class="progress progress-primary w-full" 
+                value={pdfProgress.current} 
+                max={pdfProgress.total}
+              ></progress>
+              <span>Please wait, this may take a minute...</span>
+            </div>
+          {:else}
+            Finalizing PDF document...
+          {/if}
         </div>
-      </div>
-    {/if}
-
-    <!-- Divider -->
-    <div class="divider w-full max-w-md">OR</div>
-
-    <!-- Legacy Browser Print Option -->
-    <div class="w-full max-w-md">
-      <div class="text-center mb-3">
-        <h4 class="font-semibold text-sm">Browser Print (Legacy)</h4>
-        <p class="text-xs opacity-70">
-          Simple print without professional features
-        </p>
-      </div>
-      <button
-        class="btn btn-outline btn-sm w-full"
-        onclick={() => window.print()}
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke-width="1.5"
-          stroke="currentColor"
-          class="w-4 h-4"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0 1 10.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0 .229 2.523a1.125 1.125 0 0 1-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0 0 21 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 0 0-1.913-.247M6.34 18H5.25A2.25 2.25 0 0 1 3 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 0 1 1.913-.247m10.5 0a48.536 48.536 0 0 0-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5Zm-3 0h.008v.008H15V10.5Z"
-          />
-        </svg>
-        Use Browser Print (Ctrl+P)
-      </button>
+      {/if}
     </div>
 
     <!-- Preview Section (hidden by default, shown on hover/expand) -->
@@ -1461,7 +1476,7 @@
         <div
           class="bg-white overflow-x-auto max-w-full flex flex-col items-center gap-4 p-4"
         >
-          {#each $preparedTokens.slice(0, 5) as token}
+          {#each $preparedTokens as token}
             {#if selectedTemplate === "comic"}
               <ComicNote
                 {design}
@@ -1518,11 +1533,6 @@
               />
             {/if}
           {/each}
-          {#if $preparedTokens.length > 5}
-            <div class="text-sm opacity-70">
-              ...and {$preparedTokens.length - 5} more notes
-            </div>
-          {/if}
         </div>
       </div>
     </details>
