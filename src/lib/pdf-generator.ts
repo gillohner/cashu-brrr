@@ -11,7 +11,7 @@ export interface NoteData {
 // A4 Portrait constants - FIXED configuration
 const A4_WIDTH = 210; // mm
 const A4_HEIGHT = 297; // mm
-const BLEED = 5; // mm - fixed 10mm bleed on sides and between notes
+const BLEED = 5; // mm - fixed 5mm bleed on sides and between notes
 const NOTES_PER_PAGE = 3; // Always 3 notes per page, stacked vertically
 const DPI_SCALE = 4; // High quality rendering (4x resolution for crisp text)
 
