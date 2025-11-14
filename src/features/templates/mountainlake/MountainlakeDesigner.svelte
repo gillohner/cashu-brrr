@@ -745,34 +745,37 @@
   <!-- Background Section -->
   <div class="collapse collapse-arrow bg-base-100">
     <input type="checkbox" bind:checked={bgSectionOpen} />
-    <div class="collapse-title text-sm font-medium flex items-center justify-between pr-12">
-      <span>Background</span>
-      {#if enableBackside && oppositeSideConfig}
-        <button
-          class="btn btn-xs btn-ghost gap-1"
-          onclick={(e) => {
-            e.stopPropagation();
-            copyFromOppositeSide('background');
-          }}
-          title="Copy background settings from {activeSide === 'front' ? 'back' : 'front'} side"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            class="w-3 h-3"
+    <div class="collapse-title text-sm font-medium pr-4">
+      <div class="flex items-center justify-between">
+        <span>Background</span>
+        {#if enableBackside && oppositeSideConfig}
+          <button
+            class="btn btn-xs btn-ghost z-10 mr-5 gap-1"
+            onclick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              copyFromOppositeSide('background');
+            }}
+            title="Copy background settings from {activeSide === 'front' ? 'back' : 'front'} side"
           >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 0 1-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 0 1 1.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 0 0-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 0 1-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H9.75"
-            />
-          </svg>
-          Copy
-        </button>
-      {/if}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="w-3 h-3"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 0 1-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 0 1 1.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 0 0-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 0 1-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H9.75"
+              />
+            </svg>
+            Copy
+          </button>
+        {/if}
+      </div>
     </div>
     <div class="collapse-content space-y-3">
       <!-- Type Selector -->
@@ -885,34 +888,37 @@
   <!-- Top Left Icon Section -->
   <div class="collapse collapse-arrow bg-base-100">
     <input type="checkbox" bind:checked={topLeftSectionOpen} />
-    <div class="collapse-title text-sm font-medium flex items-center justify-between pr-12">
-      <span>Top Left Icon</span>
-      {#if enableBackside && oppositeSideConfig}
-        <button
-          class="btn btn-xs btn-ghost gap-1"
-          onclick={(e) => {
-            e.stopPropagation();
-            copyFromOppositeSide('topLeftIcon');
-          }}
-          title="Copy icon settings from {activeSide === 'front' ? 'back' : 'front'} side"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            class="w-3 h-3"
+    <div class="collapse-title text-sm font-medium pr-4">
+      <div class="flex items-center justify-between">
+        <span>Top Left Icon</span>
+        {#if enableBackside && oppositeSideConfig}
+          <button
+            class="btn btn-xs btn-ghost z-10 mr-5 gap-1"
+            onclick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              copyFromOppositeSide('topLeftIcon');
+            }}
+            title="Copy icon settings from {activeSide === 'front' ? 'back' : 'front'} side"
           >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 0 1-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 0 1 1.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 0 0-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 0 1-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H9.75"
-            />
-          </svg>
-          Copy
-        </button>
-      {/if}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="w-3 h-3"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 0 1-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 0 1 1.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 0 0-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 0 1-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H9.75"
+              />
+            </svg>
+            Copy
+          </button>
+        {/if}
+      </div>
     </div>
     <div class="collapse-content space-y-2">
       <!-- Enable Toggle -->
@@ -1061,34 +1067,37 @@
   <!-- Top Right Text Section -->
   <div class="collapse collapse-arrow bg-base-100">
     <input type="checkbox" bind:checked={topRightSectionOpen} />
-    <div class="collapse-title text-sm font-medium flex items-center justify-between pr-12">
-      <span>Top Right Text</span>
-      {#if enableBackside && oppositeSideConfig}
-        <button
-          class="btn btn-xs btn-ghost gap-1"
-          onclick={(e) => {
-            e.stopPropagation();
-            copyFromOppositeSide('topRightText');
-          }}
-          title="Copy text settings from {activeSide === 'front' ? 'back' : 'front'} side"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            class="w-3 h-3"
+    <div class="collapse-title text-sm font-medium pr-4">
+      <div class="flex items-center justify-between">
+        <span>Top Right Text</span>
+        {#if enableBackside && oppositeSideConfig}
+          <button
+            class="btn btn-xs btn-ghost z-10 mr-5 gap-1"
+            onclick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              copyFromOppositeSide('topRightText');
+            }}
+            title="Copy text settings from {activeSide === 'front' ? 'back' : 'front'} side"
           >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 0 1-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 0 1 1.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 0 0-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 0 1-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H9.75"
-            />
-          </svg>
-          Copy
-        </button>
-      {/if}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="w-3 h-3"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 0 1-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 0 1 1.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 0 0-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 0 1-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H9.75"
+              />
+            </svg>
+            Copy
+          </button>
+        {/if}
+      </div>
     </div>
     <div class="collapse-content space-y-3">
       <!-- Enable/Disable Toggle -->
@@ -1162,34 +1171,37 @@
   <!-- QR Code Section -->
   <div class="collapse collapse-arrow bg-base-100">
     <input type="checkbox" bind:checked={qrSectionOpen} />
-    <div class="collapse-title text-sm font-medium flex items-center justify-between pr-12">
-      <span>QR Code</span>
-      {#if enableBackside && oppositeSideConfig}
-        <button
-          class="btn btn-xs btn-ghost gap-1"
-          onclick={(e) => {
-            e.stopPropagation();
-            copyFromOppositeSide('qrCode');
-          }}
-          title="Copy QR code settings from {activeSide === 'front' ? 'back' : 'front'} side"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            class="w-3 h-3"
+    <div class="collapse-title text-sm font-medium pr-4">
+      <div class="flex items-center justify-between">
+        <span>QR Code</span>
+        {#if enableBackside && oppositeSideConfig}
+          <button
+            class="btn btn-xs btn-ghost z-10 mr-5 gap-1"
+            onclick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              copyFromOppositeSide('qrCode');
+            }}
+            title="Copy QR code settings from {activeSide === 'front' ? 'back' : 'front'} side"
           >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 0 1-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 0 1 1.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 0 0-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 0 1-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H9.75"
-            />
-          </svg>
-          Copy
-        </button>
-      {/if}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="w-3 h-3"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 0 1-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 0 1 1.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 0 0-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 0 1-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H9.75"
+              />
+            </svg>
+            Copy
+          </button>
+        {/if}
+      </div>
     </div>
     <div class="collapse-content space-y-3">
       <!-- Enable/Disable Toggle -->
@@ -1407,34 +1419,37 @@
   <!-- Bottom Denomination Section -->
   <div class="collapse collapse-arrow bg-base-100">
     <input type="checkbox" bind:checked={bottomSectionOpen} />
-    <div class="collapse-title text-sm font-medium flex items-center justify-between pr-12">
-      <span>Bottom Denomination</span>
-      {#if enableBackside && oppositeSideConfig}
-        <button
-          class="btn btn-xs btn-ghost gap-1"
-          onclick={(e) => {
-            e.stopPropagation();
-            copyFromOppositeSide('bottom');
-          }}
-          title="Copy denomination settings from {activeSide === 'front' ? 'back' : 'front'} side"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            class="w-3 h-3"
+    <div class="collapse-title text-sm font-medium pr-4">
+      <div class="flex items-center justify-between">
+        <span>Bottom Denomination</span>
+        {#if enableBackside && oppositeSideConfig}
+          <button
+            class="btn btn-xs btn-ghost z-10 mr-5 gap-1"
+            onclick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              copyFromOppositeSide('bottom');
+            }}
+            title="Copy denomination settings from {activeSide === 'front' ? 'back' : 'front'} side"
           >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 0 1-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 0 1 1.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 0 0-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 0 1-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H9.75"
-            />
-          </svg>
-          Copy
-        </button>
-      {/if}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="w-3 h-3"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 0 1-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 0 1 1.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 0 0-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 0 1-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H9.75"
+              />
+            </svg>
+            Copy
+          </button>
+        {/if}
+      </div>
     </div>
     <div class="collapse-content space-y-3">
       <!-- Enable/Disable Toggle -->
@@ -1515,34 +1530,37 @@
   <!-- Guide Text Section -->
   <div class="collapse collapse-arrow bg-base-100">
     <input type="checkbox" />
-    <div class="collapse-title text-sm font-medium flex items-center justify-between pr-12">
-      <span>Guide Text Box</span>
-      {#if enableBackside && oppositeSideConfig}
-        <button
-          class="btn btn-xs btn-ghost gap-1"
-          onclick={(e) => {
-            e.stopPropagation();
-            copyFromOppositeSide('guideText');
-          }}
-          title="Copy guide text from {activeSide === 'front' ? 'back' : 'front'} side"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            class="w-3 h-3"
+    <div class="collapse-title text-sm font-medium pr-4">
+      <div class="flex items-center justify-between">
+        <span>Guide Text Box</span>
+        {#if enableBackside && oppositeSideConfig}
+          <button
+            class="btn btn-xs btn-ghost z-10 mr-5 gap-1"
+            onclick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              copyFromOppositeSide('guideText');
+            }}
+            title="Copy guide text from {activeSide === 'front' ? 'back' : 'front'} side"
           >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 0 1-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 0 1 1.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 0 0-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 0 1-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H9.75"
-            />
-          </svg>
-          Copy
-        </button>
-      {/if}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="w-3 h-3"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 0 1-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 0 1 1.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 0 0-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 0 1-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H9.75"
+              />
+            </svg>
+            Copy
+          </button>
+        {/if}
+      </div>
     </div>
     <div class="collapse-content space-y-3">
       <!-- Enable/Disable Toggle -->
@@ -1698,34 +1716,37 @@
   <!-- Custom Images Section -->
   <div class="collapse collapse-arrow bg-base-100">
     <input type="checkbox" />
-    <div class="collapse-title text-sm font-medium flex items-center justify-between pr-12">
-      <span>Custom Images</span>
-      {#if enableBackside && oppositeSideConfig}
-        <button
-          class="btn btn-xs btn-ghost gap-1"
-          onclick={(e) => {
-            e.stopPropagation();
-            copyFromOppositeSide('customImages');
-          }}
-          title="Copy custom images from {activeSide === 'front' ? 'back' : 'front'} side"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            class="w-3 h-3"
+    <div class="collapse-title text-sm font-medium pr-4">
+      <div class="flex items-center justify-between">
+        <span>Custom Images</span>
+        {#if enableBackside && oppositeSideConfig}
+          <button
+            class="btn btn-xs btn-ghost z-10 mr-5 gap-1"
+            onclick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              copyFromOppositeSide('customImages');
+            }}
+            title="Copy custom images from {activeSide === 'front' ? 'back' : 'front'} side"
           >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 0 1-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 0 1 1.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 0 0-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 0 1-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H9.75"
-            />
-          </svg>
-          Copy
-        </button>
-      {/if}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="w-3 h-3"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 0 1-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 0 1 1.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 0 0-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 0 1-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H9.75"
+              />
+            </svg>
+            Copy
+          </button>
+        {/if}
+      </div>
     </div>
     <div class="collapse-content space-y-3">
       <div class="text-xs opacity-60 mb-2">
