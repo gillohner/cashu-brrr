@@ -80,10 +80,13 @@ src/
 │   │   └── components/          # Printing-specific UI
 │   │       ├── LNInvoice.svelte
 │   │       ├── NotesCalc.svelte
+│   │       ├── ShareCopyTokens.svelte
 │   │       └── ShareViaNostr.svelte
 │   └── templates/      # Note design templates
 │       ├── comic/      # Comic design by @BitPopart
+│       │   └── ComicNote.svelte
 │       ├── custom/     # Custom design by @gandlaf21
+│       │   └── CustomNote.svelte
 │       └── mountainlake/  # Fully customizable design
 │           ├── MountainlakeNote.svelte
 │           ├── MountainlakeDesigner.svelte
@@ -91,6 +94,7 @@ src/
 ├── lib/                # Shared utilities
 │   ├── pdf-generator.ts     # PDF generation for printing
 │   ├── utils.ts             # General utility functions
+│   ├── sponsors.ts          # Sponsor configuration
 │   ├── Main.svelte          # Main app component
 │   ├── DonateCashu.svelte   # Donation component
 │   ├── Sponsor.svelte       # Sponsor display
@@ -105,7 +109,3 @@ src/
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Credits
-
-Built with ❤️ for the Cashu community
