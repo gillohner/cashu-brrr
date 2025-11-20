@@ -34,11 +34,25 @@
         $selectedDenomination,
         $selectedNumberOfNotes,
       );
-      console.log(outputAmounts);
-      if (!inputToken.startsWith("cashu")) {
-        throw new Error("Not a cashu token");
+      console.log("Output amounts:", outputAmounts);
+      
+      // More flexible token validation
+      if (!inputToken.trim()) {
+        throw new Error("Empty token");
       }
-      const token = getDecodedToken(inputToken);
+      
+      let token;
+      try {
+        token = getDecodedToken(inputToken);
+      } catch (e) {
+        throw new Error("Invalid token format - could not decode");
+      }
+      
+      const tokenAmount = getAmountForTokenSet(token.proofs);
+      const requiredAmount = $selectedDenomination * $selectedNumberOfNotes + $donation;
+      
+      console.log(`Token amount: ${tokenAmount}, Required: ${requiredAmount}`);
+      
       if (token.mint !== $wallet.mint.mintUrl) {
         throw new Error(
           `Mint mismatch: needed ${$wallet.mint.mintUrl}, received ${token.mint}`,
@@ -49,14 +63,17 @@
           `Unit mismatch: Needed ${$wallet.unit}, Received ${token.unit}`,
         );
       }
-      if (
-        getAmountForTokenSet(token.proofs) <
-        $selectedDenomination * $selectedNumberOfNotes + $donation
-      ) {
+      
+      // Account for potential swap fees (typically 1-2 sats)
+      const estimatedFees = 2; // Conservative estimate for swap fees
+      const availableAmount = tokenAmount - estimatedFees;
+      
+      if (availableAmount < requiredAmount) {
         throw new Error(
-          `Amount mismatch: Needed at least ${$selectedDenomination * $selectedNumberOfNotes + $donation}, Received ${getAmountForTokenSet(token.proofs)}`,
+          `Insufficient amount: Need ${requiredAmount} sats, but only ${availableAmount} sats available after fees (${estimatedFees} sat estimated fees). Token has ${tokenAmount} sats total.`,
         );
       }
+      
       toast.promise($wallet.receive(token, { outputAmounts }), {
         loading: "Received! Creating new cashu tokens...",
         success: (data) => {

@@ -41,7 +41,6 @@ export const discoverContacts = async (npub: string) => {
   };
   const sub = pool.subscribeMany(DEFAULT_RELAYS, [filter], {
     onevent: (event: Event) => {
-      console.log(event);
       const contacts = [];
       for (const tag of event.tags) {
         if (tag[0] !== "p") {

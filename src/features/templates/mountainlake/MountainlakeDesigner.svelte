@@ -1,10 +1,13 @@
 <script lang="ts">
   import { toast } from "svelte-sonner";
   import {
-    PRESET_TEMPLATES,
+    loadAvailableTemplates,
+    getTemplateByName,
+    getDefaultTemplate,
     downloadTemplate,
     loadTemplateFromFile,
     type MountainlakeTemplateConfig,
+    type MountainlakeTemplate,
   } from "./mountainlake-templates";
 
   interface GradientStop {
@@ -83,7 +86,6 @@
     disableQrBackground: boolean;
     qrX: number;
     qrY: number;
-    qrSize: number;
 
     // Bottom
     enableDenomination: boolean;
@@ -157,7 +159,6 @@
     disableQrBackground = $bindable(),
     qrX = $bindable(),
     qrY = $bindable(),
-    qrSize = $bindable(),
 
     enableDenomination = $bindable(),
     denominationColor = $bindable(),
@@ -191,6 +192,55 @@
   let selectedPreset = $state<string>("");
   let templateName = $state<string>("My Custom Template");
   let templateAuthor = $state<string>("");
+  let availableTemplates = $state<MountainlakeTemplate[]>([]);
+  let templatesLoading = $state<boolean>(true);
+  let defaultTemplateLoaded = $state<boolean>(false);
+
+  // Load available templates and default template when component initializes
+  let templatesPromise = loadAvailableTemplates();
+  
+  $effect(() => {
+    templatesPromise.then(async (templates) => {
+      availableTemplates = templates;
+      
+      // Load and apply default template if not already loaded
+      if (!defaultTemplateLoaded && templates.length > 0) {
+        try {
+          const defaultTemplate = await getDefaultTemplate();
+          
+          // Set the default template as selected
+          selectedPreset = defaultTemplate.name;
+          
+          // Apply the default template automatically
+          const currentSide = activeSide;
+
+          // Apply front design
+          activeSide = "front";
+          applyConfigToBindings(defaultTemplate.front);
+
+          // Apply back design
+          activeSide = "back";
+          applyConfigToBindings(defaultTemplate.back);
+
+          // Restore original side
+          activeSide = currentSide;
+
+          // Enable backside for templates
+          enableBackside = true;
+          
+          defaultTemplateLoaded = true;
+        } catch (error) {
+          console.error('Failed to load default template:', error);
+        }
+      }
+      
+      templatesLoading = false;
+    }).catch(error => {
+      console.error('Failed to load templates:', error);
+      toast.error('Failed to load available templates');
+      templatesLoading = false;
+    });
+  });
 
   /**
    * Apply all properties from a template config to the current design
@@ -232,7 +282,6 @@
     disableQrBackground = config.disableQrBackground;
     qrX = config.qrX;
     qrY = config.qrY;
-    qrSize = config.qrSize;
 
     // Bottom
     enableDenomination = config.enableDenomination;
@@ -303,7 +352,6 @@
       disableQrBackground,
       qrX,
       qrY,
-      qrSize,
 
       enableDenomination,
       denominationColor,
@@ -332,30 +380,38 @@
   /**
    * Apply a preset template
    */
-  function applyPreset() {
+  async function applyPreset() {
     if (!selectedPreset) return;
 
-    const template = PRESET_TEMPLATES.find((t) => t.name === selectedPreset);
-    if (!template) return;
+    try {
+      const template = await getTemplateByName(selectedPreset);
+      if (!template) {
+        toast.error('Template not found');
+        return;
+      }
 
-    // Store current side
-    const currentSide = activeSide;
+      // Store current side
+      const currentSide = activeSide;
 
-    // Apply front design
-    activeSide = "front";
-    applyConfigToBindings(template.front);
+      // Apply front design
+      activeSide = "front";
+      applyConfigToBindings(template.front);
 
-    // Apply back design
-    activeSide = "back";
-    applyConfigToBindings(template.back);
+      // Apply back design
+      activeSide = "back";
+      applyConfigToBindings(template.back);
 
-    // Restore original side
-    activeSide = currentSide;
+      // Restore original side
+      activeSide = currentSide;
 
-    // Enable backside for templates
-    enableBackside = true;
+      // Enable backside for templates
+      enableBackside = true;
 
-    toast.success(`Applied template: ${template.name}`);
+      toast.success(`Applied template: ${template.name}`);
+    } catch (error) {
+      console.error('Failed to apply preset:', error);
+      toast.error('Failed to apply template');
+    }
   }
 
   /**
@@ -492,7 +548,6 @@
         disableQrBackground = opposite.disableQrBackground;
         qrX = opposite.qrX;
         qrY = opposite.qrY;
-        qrSize = opposite.qrSize;
         toast.success(`Copied QR code settings from ${sideName} side`);
         break;
 
@@ -571,26 +626,35 @@
           <select
             bind:value={selectedPreset}
             class="select select-bordered select-sm flex-1"
+            disabled={templatesLoading}
           >
-            <option value="">Choose a preset...</option>
-            {#each PRESET_TEMPLATES as template}
-              <option value={template.name}>{template.name}</option>
-            {/each}
+            {#if templatesLoading}
+              <option value="">Loading templates...</option>
+            {:else}
+              {#each availableTemplates as template}
+                <option value={template.name}>{template.name}</option>
+              {/each}
+            {/if}
           </select>
           <button
             class="btn btn-primary btn-sm"
             onclick={applyPreset}
-            disabled={!selectedPreset}
+            disabled={templatesLoading}
           >
             Apply
           </button>
         </div>
         {#if selectedPreset}
-          {@const template = PRESET_TEMPLATES.find(
+          {@const template = availableTemplates.find(
             (t) => t.name === selectedPreset,
           )}
           {#if template}
-            <p class="text-xs opacity-70 mt-1">{template.description}</p>
+            <p class="text-xs opacity-70 mt-1">
+              {template.description}
+              {#if template.author}
+                <span class="opacity-50">• by {template.author}</span>
+              {/if}
+            </p>
           {/if}
         {/if}
       </div>
@@ -1224,7 +1288,7 @@
           <input
             type="range"
             min="0"
-            max="160"
+            max="40"
             bind:value={qrX}
             class="range range-xs range-primary"
           />
@@ -1241,21 +1305,6 @@
             min="0"
             max="280"
             bind:value={qrY}
-            class="range range-xs range-primary"
-          />
-        </label>
-
-        <!-- QR Size -->
-        <label class="form-control">
-          <div class="label pb-1">
-            <span class="label-text text-xs">QR Size</span>
-            <span class="label-text-alt text-xs">{qrSize}px</span>
-          </div>
-          <input
-            type="range"
-            min="40"
-            max="120"
-            bind:value={qrSize}
             class="range range-xs range-primary"
           />
         </label>

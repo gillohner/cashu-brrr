@@ -151,21 +151,31 @@ export const createOutputAmount = async (denomination: number) => {
     .map((k) => parseInt(k))
     .sort((a, b) => b - a);
   const constructedToken: number[] = [];
+  let remaining = denomination;
 
+  // Use greedy algorithm: start with largest denominations
   for (const amount of availableAmounts) {
-    const accumulated = constructedToken.reduce((acc, curr) => acc + curr, 0);
-    if (accumulated + amount < denomination) {
+    while (remaining >= amount) {
       constructedToken.push(amount);
-    } else if (accumulated + amount === denomination) {
-      constructedToken.push(amount);
+      remaining -= amount;
+    }
+    
+    // Early exit if we've reached the target
+    if (remaining === 0) {
       return constructedToken;
     }
   }
-  throw new Error(
-    `Could not create amount ${denomination} from available amounts: ${availableAmounts.join(
-      ", ",
-    )}`,
-  );
+
+  // If we still have remainder, the denomination can't be constructed
+  if (remaining > 0) {
+    throw new Error(
+      `Could not create amount ${denomination} from available amounts: ${availableAmounts.join(
+        ", ",
+      )}. Missing ${remaining} sats.`,
+    );
+  }
+
+  return constructedToken;
 };
 
 export const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));

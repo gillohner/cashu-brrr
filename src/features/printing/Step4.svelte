@@ -101,7 +101,6 @@
     enableQrCode: boolean;
     qrX: number;
     qrY: number;
-    qrSize: number;
 
     // Bottom
     denominationColor: string;
@@ -169,9 +168,8 @@
     disableQrBorder: false,
     disableQrBackground: false,
     enableQrCode: true,
-    qrX: 35,
+    qrX: 20,
     qrY: 93,
-    qrSize: 90,
 
     denominationColor: "#F77F00",
     bottomBoxColor: "#FFFFFF",
@@ -221,79 +219,12 @@
     activeSide === "front" ? backDesign : frontDesign,
   );
 
-  // Mountainlake note configuration - LEGACY (for backward compatibility during migration)
-  let topLeftIcon = $state<
-    | "cashu-logo"
-    | "bitcoin"
-    | "satoshi-v1"
-    | "satoshi-v2"
-    | "satoshi-v3"
-    | "none"
-    | "custom"
-  >("cashu-logo");
-  let customLogoUrl = $state("");
-  let topLeftIconColor = $state("#FFFFFF");
-  let enableIconColorOverride = $state(false);
-  let topLeftIconSize = $state(35);
-  let topLeftIconX = $state(10);
-  let topLeftIconY = $state(10);
-  let topLeftIconOpacity = $state(100);
-  let headerText = $state(
-    "Cashu Token\nRedeemable with Cashu\nWallet of choice",
-  );
-  let headerTextColor = $state("#FFFFFF");
-
   // Collapsible sections state
   let bgSectionOpen = $state(false);
   let topLeftSectionOpen = $state(false);
   let topRightSectionOpen = $state(false);
   let qrSectionOpen = $state(false);
   let bottomSectionOpen = $state(false);
-
-  // Advanced gradient system - background
-  let bgGradientType = $state<"linear" | "radial" | "solid">("linear");
-  let gradientType = $state<"linear" | "radial">("linear");
-  let gradientAngle = $state(135);
-  let gradientStops = $state([
-    { offset: 0, color: "#F77F00" },
-    { offset: 100, color: "#7209B7" },
-  ]);
-  let radialCenterX = $state(50);
-  let radialCenterY = $state(50);
-  let bgSolidColor = $state("#F77F00");
-
-  // QR Code customization
-  let qrGradientType = $state<"linear" | "radial" | "solid">("solid");
-  let qrGradientAngle = $state(90);
-  let qrGradientStops = $state([
-    { offset: 0, color: "#FFFFFF" },
-    { offset: 100, color: "#F0F0F0" },
-  ]);
-  let qrBackgroundColor = $state("#FFFFFF");
-  let qrBorderColor = $state("#F77F00");
-  let qrCodeColor = $state("#000000");
-  let disableQrBorder = $state(false);
-  let disableQrBackground = $state(false);
-
-  let denominationColor = $state("#F77F00");
-  let bottomBoxColor = $state("#FFFFFF");
-  let bottomTextColor = $state("#666666");
-  let customBottomText = $state("");
-
-  // Custom layers for images/graphics
-  let customLayers = $state<
-    Array<{
-      id: string;
-      type: "image" | "text" | "shape";
-      x: number;
-      y: number;
-      width: number;
-      height: number;
-      content: string;
-      rotation?: number;
-      opacity?: number;
-    }>
-  >([]);
 
   // PDF Generation state
   let isGeneratingPdf = $state(false);
@@ -447,7 +378,6 @@
               disableQrBackground: frontDesign.disableQrBackground,
               qrX: frontDesign.qrX,
               qrY: frontDesign.qrY,
-              qrSize: frontDesign.qrSize,
               denominationColor: frontDesign.denominationColor,
               bottomBoxColor: frontDesign.bottomBoxColor,
               bottomTextColor: frontDesign.bottomTextColor,
@@ -525,7 +455,6 @@
                 disableQrBackground: backDesign.disableQrBackground,
                 qrX: backDesign.qrX,
                 qrY: backDesign.qrY,
-                qrSize: backDesign.qrSize,
                 denominationColor: backDesign.denominationColor,
                 bottomBoxColor: backDesign.bottomBoxColor,
                 bottomTextColor: backDesign.bottomTextColor,
@@ -814,28 +743,57 @@
               )}
               mintUrl={$wallet?.mint.mintUrl}
               token={"blabla"}
-              {topLeftIcon}
-              {customLogoUrl}
-              {topLeftIconColor}
-              {enableIconColorOverride}
-              {topLeftIconSize}
-              {topLeftIconX}
-              {topLeftIconY}
-              {topLeftIconOpacity}
-              {headerText}
-              {headerTextColor}
-              {gradientType}
-              {gradientStops}
-              {gradientAngle}
-              {radialCenterX}
-              {radialCenterY}
-              {qrBackgroundColor}
-              {qrBorderColor}
-              {denominationColor}
-              {bottomBoxColor}
-              {bottomTextColor}
-              {customBottomText}
-              {customLayers}
+              enableTopLeftIcon={frontDesign.enableTopLeftIcon}
+              enableHeaderText={frontDesign.enableHeaderText}
+              enableQrCode={frontDesign.enableQrCode}
+              enableDenomination={frontDesign.enableDenomination}
+              topLeftIcon={frontDesign.topLeftIcon}
+              customLogoUrl={frontDesign.customLogoUrl}
+              topLeftIconColor={frontDesign.topLeftIconColor}
+              enableIconColorOverride={frontDesign.enableIconColorOverride}
+              topLeftIconSize={frontDesign.topLeftIconSize}
+              topLeftIconX={frontDesign.topLeftIconX}
+              topLeftIconY={frontDesign.topLeftIconY}
+              topLeftIconOpacity={frontDesign.topLeftIconOpacity}
+              headerText={frontDesign.headerText}
+              headerTextColor={frontDesign.headerTextColor}
+              headerTextX={frontDesign.headerTextX}
+              headerTextY={frontDesign.headerTextY}
+              bgGradientType={frontDesign.bgGradientType}
+              bgSolidColor={frontDesign.bgSolidColor}
+              gradientType={frontDesign.gradientType}
+              gradientStops={frontDesign.gradientStops}
+              gradientAngle={frontDesign.gradientAngle}
+              radialCenterX={frontDesign.radialCenterX}
+              radialCenterY={frontDesign.radialCenterY}
+              qrGradientType={frontDesign.qrGradientType}
+              qrGradientAngle={frontDesign.qrGradientAngle}
+              qrGradientStops={frontDesign.qrGradientStops}
+              qrCodeColor={frontDesign.qrCodeColor}
+              qrBackgroundColor={frontDesign.qrBackgroundColor}
+              qrBorderColor={frontDesign.qrBorderColor}
+              disableQrBorder={frontDesign.disableQrBorder}
+              disableQrBackground={frontDesign.disableQrBackground}
+              qrX={frontDesign.qrX}
+              qrY={frontDesign.qrY}
+              denominationColor={frontDesign.denominationColor}
+              bottomBoxColor={frontDesign.bottomBoxColor}
+              bottomTextColor={frontDesign.bottomTextColor}
+              customBottomText={frontDesign.customBottomText}
+              denominationX={frontDesign.denominationX}
+              denominationY={frontDesign.denominationY}
+              customImages={frontDesign.customImages}
+              enableGuideText={frontDesign.enableGuideText}
+              guideText={frontDesign.guideText}
+              guideTextColor={frontDesign.guideTextColor}
+              guideBackgroundColor={frontDesign.guideBackgroundColor}
+              guideBorderColor={frontDesign.guideBorderColor}
+              disableGuideBorder={frontDesign.disableGuideBorder}
+              disableGuideBackground={frontDesign.disableGuideBackground}
+              guideX={frontDesign.guideX}
+              guideY={frontDesign.guideY}
+              guideWidth={frontDesign.guideWidth}
+              guideHeight={frontDesign.guideHeight}
             />
           </div>
         </button>
@@ -967,7 +925,6 @@
             bind:disableQrBorder={currentDesign.disableQrBorder}
             bind:qrX={currentDesign.qrX}
             bind:qrY={currentDesign.qrY}
-            bind:qrSize={currentDesign.qrSize}
             bind:denominationColor={currentDesign.denominationColor}
             bind:bottomBoxColor={currentDesign.bottomBoxColor}
             bind:bottomTextColor={currentDesign.bottomTextColor}
@@ -1058,7 +1015,6 @@
               disableQrBackground={frontDesign.disableQrBackground}
               qrX={frontDesign.qrX}
               qrY={frontDesign.qrY}
-              qrSize={frontDesign.qrSize}
               denominationColor={frontDesign.denominationColor}
               bottomBoxColor={frontDesign.bottomBoxColor}
               bottomTextColor={frontDesign.bottomTextColor}
@@ -1120,7 +1076,6 @@
                 disableQrBackground={backDesign.disableQrBackground}
                 qrX={backDesign.qrX}
                 qrY={backDesign.qrY}
-                qrSize={backDesign.qrSize}
                 denominationColor={backDesign.denominationColor}
                 bottomBoxColor={backDesign.bottomBoxColor}
                 bottomTextColor={backDesign.bottomTextColor}
@@ -1466,76 +1421,6 @@
         </div>
       {/if}
     </div>
-
-    <!-- Preview Section (hidden by default, shown on hover/expand) -->
-    <details class="collapse collapse-arrow bg-base-200 w-full max-w-4xl">
-      <summary class="collapse-title text-sm font-medium">
-        Preview Notes ({$preparedTokens.length} notes)
-      </summary>
-      <div class="collapse-content">
-        <div
-          class="bg-white overflow-x-auto max-w-full flex flex-col items-center gap-4 p-4"
-        >
-          {#each $preparedTokens as token}
-            {#if selectedTemplate === "comic"}
-              <ComicNote
-                {design}
-                denomination={getAmountForTokenSet(token.proofs)}
-                mintUrl={token.mint}
-                token={getEncodedTokenV4(token)}
-                unit={$wallet?.unit}
-              />
-            {:else if selectedTemplate === "custom"}
-              <CustomNote
-                {brandLogoURL}
-                {colorCode}
-                {cornerBrandLogoURL}
-                denomination={getAmountForTokenSet(token.proofs)}
-                mintUrl={token.mint}
-                token={getEncodedTokenV4(token)}
-                unit={$wallet?.unit}
-              />
-            {:else if selectedTemplate === "mountainlake"}
-              <MountainlakeNote
-                denomination={getAmountForTokenSet(token.proofs)}
-                mintUrl={token.mint}
-                token={getEncodedTokenV4(token)}
-                {topLeftIcon}
-                {customLogoUrl}
-                {topLeftIconColor}
-                {enableIconColorOverride}
-                {topLeftIconSize}
-                {topLeftIconX}
-                {topLeftIconY}
-                {topLeftIconOpacity}
-                {headerText}
-                {headerTextColor}
-                {bgGradientType}
-                {bgSolidColor}
-                {gradientType}
-                {gradientStops}
-                {gradientAngle}
-                {radialCenterX}
-                {radialCenterY}
-                {qrGradientType}
-                {qrGradientAngle}
-                {qrGradientStops}
-                {qrCodeColor}
-                {qrBackgroundColor}
-                {qrBorderColor}
-                {disableQrBorder}
-                {disableQrBackground}
-                {denominationColor}
-                {bottomBoxColor}
-                {bottomTextColor}
-                {customBottomText}
-                {customLayers}
-              />
-            {/if}
-          {/each}
-        </div>
-      </div>
-    </details>
   </div>
 {:else if active === "share"}
   <ShareViaNostr></ShareViaNostr>

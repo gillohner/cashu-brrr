@@ -58,7 +58,7 @@ export const mint = writable<Mint>();
 export const step = writable<number>(1);
 export const selectedDenomination = writable<number>(1);
 export const selectedNumberOfNotes = writable<number>(1);
-export const donation = writable<number>(1);
+export const donation = writable<number>(0);
 export const preparedTokens = writable<Token[]>([]);
 export const currentQuote = writable<MintQuoteResponse>();
 

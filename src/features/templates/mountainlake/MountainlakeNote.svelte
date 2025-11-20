@@ -116,8 +116,6 @@
     qrX?: number;
     /** QR Y position */
     qrY?: number;
-    /** QR size */
-    qrSize?: number;
 
     /** Legacy QR props (deprecated) */
     qrBackgroundColor?: string;
@@ -212,9 +210,8 @@
     disableQrBackground = false,
     disableQrBorder = false,
     qrCodeColor = "#000000",
-    qrX = 40,
+    qrX = 20,
     qrY = 90,
-    qrSize = 80,
 
     // Legacy QR support
     qrBackgroundColor = "#FFFFFF",
@@ -389,7 +386,7 @@
     if (tpl.length > 0) {
       return tpl.replaceAll("{MINT}", mintHostUpper);
     }
-    return mintHostUpper ? `${mintHostUpper}\nADD YOUR OWN TEXT` : "";
+    return mintHostUpper ? `${mintHostUpper}\n` : "";
   });
 </script>
 
@@ -639,8 +636,8 @@
         id="qr-container"
         x={qrX}
         y={qrY}
-        width={qrSize}
-        height={qrSize}
+        width={120}
+        height={120}
         fill={qrGradientType === "solid"
           ? qrStops[0].color
           : `url(#qrGradient-${randomID})`}
@@ -654,10 +651,10 @@
     {#if enableQrCode && imageURL}
       <image
         href={imageURL}
-        x={qrX + qrSize * 0.1}
-        y={qrY + qrSize * 0.1}
-        width={qrSize * 0.8}
-        height={qrSize * 0.8}
+        x={qrX + 12}
+        y={qrY + 12}
+        width={96}
+        height={96}
         preserveAspectRatio="xMidYMid meet"
         style="mix-blend-mode: multiply;"
       />

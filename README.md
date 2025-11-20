@@ -90,7 +90,7 @@ src/
 │       └── mountainlake/  # Fully customizable design
 │           ├── MountainlakeNote.svelte
 │           ├── MountainlakeDesigner.svelte
-│           └── mountainlake-templates.ts  # Preset templates
+│           └── mountainlake-templates.ts  # Template loading system
 ├── lib/                # Shared utilities
 │   ├── pdf-generator.ts     # PDF generation for printing
 │   ├── utils.ts             # General utility functions
@@ -104,7 +104,27 @@ src/
     └── stores/
         ├── printing.svelte.ts  # Printing flow state
         └── wallet.svelte.ts    # Wallet state
+
+public/mountainlake-templates/  # Community template files
+├── README.md                   # Template contribution guide
+├── bitcoin-baden.mountainlake.json
+├── bitcoin-blue.mountainlake.json
+└── minimal-monochrome.mountainlake.json
+└── sunset-orange.mountainlake.json
+
+scripts/
+└── addTemplate.mjs             # Add templates (validates & updates list)
 ```
+
+## Contributing Templates
+
+Add your custom Mountainlake note designs:
+
+```bash
+npm run addTemplate your-template.mountainlake.json
+```
+
+See `public/mountainlake-templates/README.md` for details.
 
 ## License
 

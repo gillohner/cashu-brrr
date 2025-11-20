@@ -53,7 +53,6 @@ export interface MountainlakeTemplateConfig {
   enableQrCode: boolean;
   qrX: number;
   qrY: number;
-  qrSize: number;
   
   // Bottom
   denominationColor: string;
@@ -95,261 +94,100 @@ export interface MountainlakeTemplate {
 }
 
 /**
- * Default Mountainlake template configuration
+ * Cache for loaded templates
  */
-export const DEFAULT_MOUNTAINLAKE_CONFIG: MountainlakeTemplateConfig = {
-  topLeftIcon: "cashu-logo",
-  customLogoUrl: "",
-  topLeftIconColor: "#FFFFFF",
-  enableIconColorOverride: false,
-  topLeftIconSize: 35,
-  topLeftIconX: 10,
-  topLeftIconY: 10,
-  topLeftIconOpacity: 100,
-  enableTopLeftIcon: true,
-  
-  headerText: "Cashu Token\nRedeemable with Cashu\nWallet of choice",
-  headerTextColor: "#FFFFFF",
-  headerTextX: 150,
-  headerTextY: 0,
-  enableHeaderText: true,
-  
-  bgGradientType: 'linear',
-  gradientType: 'linear',
-  gradientAngle: 135,
-  gradientStops: [
-    { offset: 0, color: "#F77F00" },
-    { offset: 100, color: "#7209B7" }
-  ],
-  radialCenterX: 50,
-  radialCenterY: 50,
-  bgSolidColor: "#F77F00",
-  
-  qrGradientType: 'solid',
-  qrGradientAngle: 90,
-  qrGradientStops: [
-    { offset: 0, color: "#FFFFFF" },
-    { offset: 100, color: "#F0F0F0" }
-  ],
-  qrBackgroundColor: "#FFFFFF",
-  qrBorderColor: "#F77F00",
-  qrCodeColor: "#000000",
-  disableQrBorder: false,
-  disableQrBackground: false,
-  enableQrCode: true,
-  qrX: 35,
-  qrY: 93,
-  qrSize: 90,
-  
-  denominationColor: "#F77F00",
-  bottomBoxColor: "#FFFFFF",
-  bottomTextColor: "#666666",
-  customBottomText: "",
-  enableDenomination: true,
-  denominationX: 0,
-  denominationY: 219,
-  
-  customImages: [],
-  
-  enableGuideText: false,
-  guideText: "How to redeem:\n1. Download a Cashu wallet\n2. Scan the QR code\n3. Tokens are now in your wallet",
-  guideTextColor: "#333333",
-  guideBackgroundColor: "#FFFFFF",
-  guideBorderColor: "#F77F00",
-  disableGuideBorder: false,
-  disableGuideBackground: false,
-  guideX: 10,
-  guideY: 90,
-  guideWidth: 140,
-  guideHeight: 100,
-};
+let templatesCache: MountainlakeTemplate[] | null = null;
+let defaultTemplate: MountainlakeTemplate | null = null;
 
 /**
- * Preset Templates
+ * Get the default template (Sunset Orange)
  */
-export const PRESET_TEMPLATES: MountainlakeTemplate[] = [
-  {
-    name: "Classic Orange-Purple",
-    description: "The original Cashu BRRR design with vibrant orange to purple gradient",
-    author: "Cashu BRRR",
-    version: "1.0",
-    createdAt: new Date().toISOString(),
-    front: { ...DEFAULT_MOUNTAINLAKE_CONFIG },
-    back: {
-      ...DEFAULT_MOUNTAINLAKE_CONFIG,
-      enableQrCode: false,
-      enableDenomination: false,
-      enableGuideText: true,
-      headerText: "Cashu Ecash\nDigital Bearer Asset\nSelf Custody",
+export async function getDefaultTemplate(): Promise<MountainlakeTemplate> {
+  if (defaultTemplate) {
+    return defaultTemplate;
+  }
+
+  try {
+    const response = await fetch('/mountainlake-templates/sunset-orange.mountainlake.json');
+    if (response.ok) {
+      const template = await response.json();
+      if (isValidTemplate(template)) {
+        defaultTemplate = template;
+        return template;
+      }
     }
-  },
-  {
-    name: "Bitcoin Blue",
-    description: "Bitcoin-themed design with blue gradient and Bitcoin symbol",
-    author: "Cashu BRRR",
-    version: "1.0",
-    createdAt: new Date().toISOString(),
-    front: {
-      ...DEFAULT_MOUNTAINLAKE_CONFIG,
-      topLeftIcon: "bitcoin",
-      gradientStops: [
-        { offset: 0, color: "#0052FF" },
-        { offset: 100, color: "#00D4FF" }
-      ],
-      qrBorderColor: "#0052FF",
-      denominationColor: "#0052FF",
-    },
-    back: {
-      ...DEFAULT_MOUNTAINLAKE_CONFIG,
-      topLeftIcon: "bitcoin",
-      gradientStops: [
-        { offset: 0, color: "#0052FF" },
-        { offset: 100, color: "#00D4FF" }
-      ],
-      enableQrCode: false,
-      enableDenomination: false,
-      enableGuideText: true,
-      headerText: "Bitcoin Ecash\nPeer-to-Peer\nElectronic Cash",
-      guideBorderColor: "#0052FF",
+  } catch (error) {
+    console.warn('Failed to load default template:', error);
+  }
+
+  // Fallback if sunset-orange.json fails to load
+  throw new Error('Default template not available');
+}
+
+/**
+ * Load all available templates from the public/mountainlake-templates/ directory
+ */
+export async function loadAvailableTemplates(): Promise<MountainlakeTemplate[]> {
+  // Return cached templates if already loaded
+  if (templatesCache !== null) {
+    return templatesCache;
+  }
+
+  const templates: MountainlakeTemplate[] = [];
+
+  try {
+    // Load template files from the public directory
+    const templateFiles = [
+      'sunset-orange.mountainlake.json',
+      'bitcoin-baden.mountainlake.json',
+      'light-monochrome.mountainlake.json',
+      'satoshi-blue.mountainlake.json',
+      // Add more template files here as they are added to the public folder
+      // This list is automatically updated by running: npm run addTemplate
+    ];
+
+    // Load each template file
+    for (const filename of templateFiles) {
+      try {
+        const response = await fetch(`/mountainlake-templates/${filename}`);
+        if (response.ok) {
+          const templateData = await response.json();
+          if (isValidTemplate(templateData)) {
+            templates.push(templateData);
+          } else {
+            console.warn(`Invalid template format in ${filename}`);
+          }
+        } else {
+          console.warn(`Failed to load template: ${filename}`);
+        }
+      } catch (error) {
+        console.warn(`Error loading template ${filename}:`, error);
+      }
     }
-  },
-  {
-    name: "Satoshi Green",
-    description: "Green nature-inspired design with Satoshi symbol",
-    author: "Cashu BRRR",
-    version: "1.0",
-    createdAt: new Date().toISOString(),
-    front: {
-      ...DEFAULT_MOUNTAINLAKE_CONFIG,
-      topLeftIcon: "satoshi-v1",
-      gradientStops: [
-        { offset: 0, color: "#10B981" },
-        { offset: 100, color: "#059669" }
-      ],
-      qrBorderColor: "#10B981",
-      denominationColor: "#10B981",
-    },
-    back: {
-      ...DEFAULT_MOUNTAINLAKE_CONFIG,
-      topLeftIcon: "satoshi-v1",
-      gradientStops: [
-        { offset: 0, color: "#10B981" },
-        { offset: 100, color: "#059669" }
-      ],
-      enableQrCode: false,
-      enableDenomination: false,
-      enableGuideText: true,
-      headerText: "Satoshi Standard\nSound Money\nFinancial Freedom",
-      guideBorderColor: "#10B981",
-    }
-  },
-  {
-    name: "Minimal Monochrome",
-    description: "Clean black and white minimalist design",
-    author: "Cashu BRRR",
-    version: "1.0",
-    createdAt: new Date().toISOString(),
-    front: {
-      ...DEFAULT_MOUNTAINLAKE_CONFIG,
-      bgGradientType: 'solid',
-      bgSolidColor: "#000000",
-      headerTextColor: "#FFFFFF",
-      qrBackgroundColor: "#FFFFFF",
-      qrBorderColor: "#FFFFFF",
-      qrCodeColor: "#000000",
-      denominationColor: "#000000",
-      bottomBoxColor: "#FFFFFF",
-      bottomTextColor: "#666666",
-    },
-    back: {
-      ...DEFAULT_MOUNTAINLAKE_CONFIG,
-      bgGradientType: 'solid',
-      bgSolidColor: "#FFFFFF",
-      headerTextColor: "#000000",
-      enableQrCode: false,
-      enableDenomination: false,
-      enableGuideText: true,
-      guideBackgroundColor: "#F3F4F6",
-      guideBorderColor: "#000000",
-      guideTextColor: "#000000",
-      headerText: "Ecash Bearer Note\nPrivacy • Freedom\nSelf Custody",
-    }
-  },
-  {
-    name: "Sunset Radial",
-    description: "Warm sunset colors with radial gradient effect",
-    author: "Cashu BRRR",
-    version: "1.0",
-    createdAt: new Date().toISOString(),
-    front: {
-      ...DEFAULT_MOUNTAINLAKE_CONFIG,
-      bgGradientType: 'radial',
-      gradientType: 'radial',
-      gradientStops: [
-        { offset: 0, color: "#FCD34D" },
-        { offset: 50, color: "#F97316" },
-        { offset: 100, color: "#DC2626" }
-      ],
-      radialCenterX: 50,
-      radialCenterY: 40,
-      qrBorderColor: "#F97316",
-      denominationColor: "#DC2626",
-    },
-    back: {
-      ...DEFAULT_MOUNTAINLAKE_CONFIG,
-      bgGradientType: 'radial',
-      gradientType: 'radial',
-      gradientStops: [
-        { offset: 0, color: "#FCD34D" },
-        { offset: 50, color: "#F97316" },
-        { offset: 100, color: "#DC2626" }
-      ],
-      radialCenterX: 50,
-      radialCenterY: 60,
-      enableQrCode: false,
-      enableDenomination: false,
-      enableGuideText: true,
-      headerText: "Ecash Token\nDigital Gold\nBearer Instrument",
-      guideBorderColor: "#DC2626",
-    }
-  },
-  {
-    name: "Light Monochrome",
-    description: "White background with dark gray accents for minimal ink usage",
-    author: "Cashu BRRR",
-    version: "1.0",
-    createdAt: new Date().toISOString(),
-    front: {
-      ...DEFAULT_MOUNTAINLAKE_CONFIG,
-      bgGradientType: 'solid',
-      bgSolidColor: "#FFFFFF",
-      headerTextColor: "#111827",
-      qrBackgroundColor: "#FFFFFF",
-      qrBorderColor: "#FFFFFF",
-      disableQrBorder: true,
-      disableQrBackground: true,
-      qrCodeColor: "#000000",
-      denominationColor: "#374151",
-      bottomBoxColor: "#E5E7EB",
-      bottomTextColor: "#374151",
-      enableTopLeftIcon: false,
-      customBottomText: `{MINT}\nADD YOUR OWN TEXT`,
-    },
-    back: {
-      ...DEFAULT_MOUNTAINLAKE_CONFIG,
-      bgGradientType: 'solid',
-      bgSolidColor: "#FFFFFF",
-      headerTextColor: "#111827",
-      enableQrCode: false,
-      enableDenomination: false,
-      enableGuideText: true,
-      guideBackgroundColor: "#F3F4F6",
-      guideBorderColor: "#111827",
-      guideTextColor: "#111827",
-      headerText: "Ecash Bearer Note\nPrivacy • Freedom\nSelf Custody",
-    }
-  },
-];
+  } catch (error) {
+    console.warn('Error loading templates:', error);
+  }
+
+  // Cache the loaded templates
+  templatesCache = templates;
+  return templates;
+}
+
+/**
+ * Get a template by name
+ */
+export async function getTemplateByName(name: string): Promise<MountainlakeTemplate | undefined> {
+  const templates = await loadAvailableTemplates();
+  return templates.find(t => t.name === name);
+}
+
+/**
+ * Refresh the template cache (call this when new templates might have been added)
+ */
+export function refreshTemplateCache(): void {
+  templatesCache = null;
+  defaultTemplate = null;
+}
 
 /**
  * Convert a blob URL to a data URL

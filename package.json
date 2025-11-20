@@ -17,7 +17,8 @@
     "pm2:restart": "pm2 restart cashu-brrr",
     "pm2:delete": "pm2 delete cashu-brrr",
     "pm2:logs": "pm2 logs cashu-brrr",
-    "pm2:monit": "pm2 monit"
+    "pm2:monit": "pm2 monit",
+    "addTemplate": "node scripts/addTemplate.mjs"
   },
   "devDependencies": {
     "@cashu/cashu-ts": "^2.0.0-rc4",
