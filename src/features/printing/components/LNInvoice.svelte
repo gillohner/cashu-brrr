@@ -29,12 +29,8 @@
     delay,
     getAmountForTokenSet,
   } from "../../../lib/utils";
-  import { nip04 } from "nostr-tools";
   import { NUTSTASH_PUBKEY, sendViaNostr } from "../../../nostr";
   import { toast } from "svelte-sonner";
-
-  // Silence unused variable warnings - may be used in future
-  void nip04;
 
   let { isPaid = $bindable(false) }: Props = $props();
 
