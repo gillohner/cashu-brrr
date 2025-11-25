@@ -7,8 +7,8 @@
     selectedNumberOfNotes,
     step,
     wallet,
-    type Print,
   } from "../../state/stores/printing.svelte";
+  import type { Print } from "../../types/cashu";
   import UnitSelector from "../../lib/comp/UnitSelector.svelte";
   import { toast } from "svelte-sonner";
   import Sponsor from "../../lib/Sponsor.svelte";

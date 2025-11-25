@@ -6,6 +6,7 @@ import type {
   CashuWallet,
   MintQuoteResponse,
   Proof,
+  Token,
 } from "@cashu/cashu-ts";
 import { writable } from "svelte/store";
 import type { Mint, Print, DiscoveredMint, Contact } from "../../types/cashu";

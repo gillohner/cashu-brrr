@@ -8,6 +8,7 @@
 import {
     CashuMint,
     CashuWallet,
+    type MintActiveKeys,
     type OutputAmounts,
     type Proof,
 } from '@cashu/cashu-ts';

@@ -14,8 +14,8 @@
     selectedNumberOfNotes,
     step,
     wallet,
-    type Print,
   } from "../../state/stores/printing.svelte";
+  import type { Print } from "../../types/cashu";
   import {
     createOutputAmount,
     createOutputAmounts,
