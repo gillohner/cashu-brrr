@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { createOutputAmount } from "../../lib/utils";
+  import { createOutputAmount } from "@/lib/utils";
   import { ChevronDown, ChevronUp } from "lucide-svelte";
 
   interface Props {

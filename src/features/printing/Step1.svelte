@@ -7,15 +7,15 @@
     selectedNumberOfNotes,
     step,
     wallet,
-  } from "../../state/stores/printing.svelte";
-  import type { Print } from "../../types/cashu";
-  import UnitSelector from "../../lib/comp/UnitSelector.svelte";
+  } from "@/state/stores/printing.svelte";
+  import type { Print } from "@/types/cashu";
+  import UnitSelector from "@/lib/comp/UnitSelector.svelte";
   import { toast } from "svelte-sonner";
-  import Sponsor from "../../lib/Sponsor.svelte";
-  import { SPONSORS } from "../../lib/sponsors";
-  import MintDiscovery from "../../components/ui/MintDiscovery.svelte";
-  import PrintHistoryList from "../../components/ui/PrintHistoryList.svelte";
-  import { getWalletWithUnit, loadMint } from "../../lib/utils";
+  import Sponsor from "@/lib/Sponsor.svelte";
+  import { SPONSORS } from "@/lib/sponsors";
+  import MintDiscovery from "@/components/ui/MintDiscovery.svelte";
+  import PrintHistoryList from "@/components/ui/PrintHistoryList.svelte";
+  import { getWalletWithUnit, loadMint } from "@/lib/utils";
 
   let mintUrl = $state("");
   let isConnecting = $state(false);

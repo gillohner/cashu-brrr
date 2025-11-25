@@ -9,7 +9,7 @@ import {
   type UnsignedEvent,
 } from "nostr-tools";
 import { EncryptedDirectMessage } from "nostr-tools/kinds";
-import { discoveredContacts, pool } from "./state/stores/printing.svelte";
+import { discoveredContacts, pool } from "@/state/stores/printing.svelte";
 export const sendViaNostr = async (toPub: string, message: string) => {
   const sk = generateSecretKey();
   const pk = getPublicKey(sk);

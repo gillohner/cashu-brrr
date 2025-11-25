@@ -9,7 +9,7 @@ import type {
   Token,
 } from "@cashu/cashu-ts";
 import { writable } from "svelte/store";
-import type { Mint, Print, DiscoveredMint, Contact } from "../../types/cashu";
+import type { Mint, Print, DiscoveredMint, Contact } from "@/types/cashu";
 import { SimplePool } from "nostr-tools";
 
 // Initialize print history from localStorage

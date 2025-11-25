@@ -14,8 +14,8 @@
     selectedNumberOfNotes,
     step,
     wallet,
-  } from "../../../state/stores/printing.svelte";
-  import type { Print } from "../../../types/cashu";
+  } from "@/state/stores/printing.svelte";
+  import type { Print } from "@/types/cashu";
   import {
     getEncodedTokenV4,
     MintQuoteState,
@@ -28,8 +28,8 @@
     createOutputAmounts,
     delay,
     getAmountForTokenSet,
-  } from "../../../lib/utils";
-  import { NUTSTASH_PUBKEY, sendViaNostr } from "../../../nostr";
+  } from "@/lib/utils";
+  import { NUTSTASH_PUBKEY, sendViaNostr } from "@/nostr";
   import { toast } from "svelte-sonner";
 
   let { isPaid = $bindable(false) }: Props = $props();
@@ -75,7 +75,6 @@
       ps,
       $wallet.mint.mintUrl,
       $wallet.unit,
-      $selectedNumberOfNotes,
     );
 
     if (donationToken) {
@@ -101,7 +100,6 @@
     proofs: Proof[],
     mint: string,
     unit: string,
-    _n: number, // Reserved for future use
   ) => {
     const tokens: Token[] = [];
     let donationToken: Token | undefined = undefined;

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { mint } from "../../state/stores/printing.svelte";
+  import { mint } from "@/state/stores/printing.svelte";
 
   let { unit = $bindable() } = $props();
 

@@ -7,10 +7,10 @@ import {
 } from "@cashu/cashu-ts";
 import {
   wallet,
-} from "../state/stores/printing.svelte";
+} from "@/state/stores/printing.svelte";
 import { get } from "svelte/store";
 import { toast } from "svelte-sonner";
-import type { Mint } from "../types/cashu";
+import type { Mint } from "@/types/cashu";
 
 export const getAmountForTokenSet = (tokens: Array<Proof>): number => {
   return tokens.reduce((acc, t) => {

@@ -1,7 +1,7 @@
 <script>
   import { getDecodedToken } from "@cashu/cashu-ts";
   import { toast } from "svelte-sonner";
-  import { NUTSTASH_PUBKEY, sendViaNostr } from "../nostr";
+  import { NUTSTASH_PUBKEY, sendViaNostr } from "@/nostr";
 
   let inputCashu = $state("");
   const process = () => {

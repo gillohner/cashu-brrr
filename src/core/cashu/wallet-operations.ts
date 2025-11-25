@@ -1,9 +1,6 @@
 /**
  * Cashu Wallet Operations
- * 
- * Abstracted business logic for Cashu wallet interactions.
- * Extracted from legacy components into core module.
- */
+*/
 
 import {
     CashuMint,
@@ -12,7 +9,7 @@ import {
     type OutputAmounts,
     type Proof,
 } from '@cashu/cashu-ts';
-import type { Mint } from '../../types/cashu';
+import type { Mint } from '@/types/cashu';
 
 /**
  * Load mint information from URL

@@ -1,11 +1,11 @@
 <script lang="ts">
   import { toast } from "svelte-sonner";
-  import { discoverContacts, sendViaNostr } from "../../../nostr";
+  import { discoverContacts, sendViaNostr } from "@/nostr";
   import {
     discoveredContacts,
     preparedTokens,
     wallet,
-  } from "../../../state/stores/printing.svelte";
+  } from "@/state/stores/printing.svelte";
   import { Check, Minus, Copy } from "lucide-svelte";
   import { getEncodedTokenV4 } from "@cashu/cashu-ts";
   import { nip19 } from "nostr-tools";
@@ -13,7 +13,7 @@
     delay,
     formatAmount,
     getAmountForTokenSet,
-  } from "../../../lib/utils";
+  } from "@/lib/utils";
 
   let addressBookNpub = $state("");
 

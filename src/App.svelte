@@ -1,9 +1,9 @@
 <script lang="ts">
   import { getDecodedToken, getEncodedTokenV4 } from "@cashu/cashu-ts";
-  import "./app.css";
-  import ComicNote from "./features/templates/comic/ComicNote.svelte";
-  import Main from "./lib/Main.svelte";
-  import { getAmountForTokenSet } from "./lib/utils";
+  import "@/app.css";
+  import ComicNote from "@/features/templates/comic/ComicNote.svelte"
+  import Main from "@/lib/Main.svelte";
+  import { getAmountForTokenSet } from "@/lib/utils";
 
   const urlParams = window.location.hash.slice(1).split("/");
 

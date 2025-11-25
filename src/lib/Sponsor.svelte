@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Sponsor } from "./sponsors";
+  import type { Sponsor } from "@/sponsors";
 
   interface Props {
     sponsor: Sponsor;

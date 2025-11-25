@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { formatAmount } from "../../lib/utils";
-  import LnInvoice from "../../features/printing/components/LNInvoice.svelte";
+  import { formatAmount } from "@/lib/utils";
+  import LnInvoice from "@/features/printing/components/LNInvoice.svelte";
 
   interface Props {
     selectedTab?: string;

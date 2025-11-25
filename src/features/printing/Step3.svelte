@@ -14,17 +14,17 @@
     selectedNumberOfNotes,
     step,
     wallet,
-  } from "../../state/stores/printing.svelte";
-  import type { Print } from "../../types/cashu";
+  } from "@/state/stores/printing.svelte";
+  import type { Print } from "@/types/cashu";
   import {
     createOutputAmount,
     createOutputAmounts,
     formatAmount,
     getAmountForTokenSet,
-  } from "../../lib/utils";
+  } from "@/lib/utils";
   import { toast } from "svelte-sonner";
-  import { NUTSTASH_PUBKEY, sendViaNostr } from "../../nostr";
-  import PaymentMethod from "../../components/ui/PaymentMethod.svelte";
+  import { NUTSTASH_PUBKEY, sendViaNostr } from "@/nostr";
+  import PaymentMethod from "@/components/ui/PaymentMethod.svelte";
 
   let tab = $state("ecash");
 

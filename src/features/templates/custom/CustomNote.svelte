@@ -3,7 +3,7 @@
   import { QRCodeImage } from "svelte-qrcode-image";
   import { secp256k1 } from "@noble/curves/secp256k1";
   import { bytesToHex } from "@noble/curves/abstract/utils";
-  import { formatAmount } from "../../../lib/utils";
+  import { formatAmount } from "@/lib/utils";
 
   interface Props {
     /** Token denomination value */

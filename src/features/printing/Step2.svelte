@@ -1,15 +1,15 @@
 <script lang="ts">
-  import NotesCalc from "./components/NotesCalc.svelte";
+  import NotesCalc from "@/features/printing/components/NotesCalc.svelte";
   import {
     donation,
     selectedDenomination,
     selectedNumberOfNotes,
     step,
     wallet,
-  } from "../../state/stores/printing.svelte";
-  import { createOutputAmount } from "../../lib/utils";
-  import DenominationConfig from "../../components/ui/DenominationConfig.svelte";
-  import DonationToggle from "../../components/ui/DonationToggle.svelte";
+  } from "@/state/stores/printing.svelte";
+  import { createOutputAmount } from "@/lib/utils";
+  import DenominationConfig from "@/components/ui/DenominationConfig.svelte";
+  import DonationToggle from "@/components/ui/DonationToggle.svelte";
 
   const getNumberOfOuts = async () => {
     return await createOutputAmount($selectedDenomination);
