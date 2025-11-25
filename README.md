@@ -61,61 +61,6 @@ There are no central banks if everyone is a central bank.
    npm run preview
    ```
 
-## Project Structure
-
-```
-src/
-├── types/              # TypeScript type definitions
-├── core/               # Core business logic
-│   └── cashu/          # Cashu-specific operations (denomination helper, wallet operations)
-├── components/         # Reusable UI components
-│   └── ui/             # Generic UI components (DenominationConfig, DonationToggle, etc.)
-├── features/           # Feature modules (organized by domain)
-│   ├── payment/        # Payment flow logic
-│   ├── printing/       # Printing workflow
-│   │   ├── Step1.svelte         # Mint selection
-│   │   ├── Step2.svelte         # Denomination & amount
-│   │   ├── Step3.svelte         # Payment
-│   │   ├── Step4.svelte         # Design & print
-│   │   └── components/          # Printing-specific UI
-│   │       ├── LNInvoice.svelte
-│   │       ├── NotesCalc.svelte
-│   │       ├── ShareCopyTokens.svelte
-│   │       └── ShareViaNostr.svelte
-│   └── templates/      # Note design templates
-│       ├── comic/      # Comic design by @BitPopart
-│       │   └── ComicNote.svelte
-│       ├── custom/     # Custom design by @gandlaf21
-│       │   └── CustomNote.svelte
-│       └── mountainlake/  # Fully customizable design
-│           ├── MountainlakeNote.svelte
-│           ├── MountainlakeDesigner.svelte
-│           └── mountainlake-templates.ts  # Template loading system
-├── lib/                # Shared utilities
-│   ├── pdf-generator.ts     # PDF generation for printing
-│   ├── utils.ts             # General utility functions
-│   ├── sponsors.ts          # Sponsor configuration
-│   ├── Main.svelte          # Main app component
-│   ├── DonateCashu.svelte   # Donation component
-│   ├── Sponsor.svelte       # Sponsor display
-│   └── comp/                # Shared components
-│       └── UnitSelector.svelte
-└── state/              # State management
-    └── stores/
-        ├── printing.svelte.ts  # Printing flow state
-        └── wallet.svelte.ts    # Wallet state
-
-public/mountainlake-templates/  # Community template files
-├── README.md                   # Template contribution guide
-├── bitcoin-baden.mountainlake.json
-├── bitcoin-blue.mountainlake.json
-└── minimal-monochrome.mountainlake.json
-└── sunset-orange.mountainlake.json
-
-scripts/
-└── addTemplate.mjs             # Add templates (validates & updates list)
-```
-
 ## Contributing Templates
 
 Add your custom Mountainlake note designs:

@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { prints, type Print } from "../../state/stores/printing.svelte";
+  import { prints } from "../../state/stores/printing.svelte";
+  import type { Print } from "../../types/cashu";
   import NotesCalc from "../../features/printing/components/NotesCalc.svelte";
   import { getAmountForTokenSet } from "../../lib/utils";
 

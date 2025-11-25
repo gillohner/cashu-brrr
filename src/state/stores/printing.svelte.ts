@@ -6,30 +6,10 @@ import type {
   CashuWallet,
   MintQuoteResponse,
   Proof,
-  Token,
 } from "@cashu/cashu-ts";
 import { writable } from "svelte/store";
-import type { Mint } from "../../lib/utils";
+import type { Mint, Print, DiscoveredMint, Contact } from "../../types/cashu";
 import { SimplePool } from "nostr-tools";
-
-// Types
-export type Print = {
-  tokens: Token[];
-  donation?: Token;
-  mint: string;
-  ts: number;
-};
-
-export type DiscoveredMint = {
-  url: string;
-  reviews: number;
-};
-
-export type Contact = {
-  npub: string;
-  alias: string;
-  picture?: string;
-};
 
 // Initialize print history from localStorage
 const initialPrintsString = window.localStorage.getItem("prints") ?? "[]";
@@ -103,4 +83,5 @@ const createDiscoveredContactsStore = () => {
 // Nostr-related stores
 export const discoveredContacts = createDiscoveredContactsStore();
 export const discoveredMints = createDiscoveredMintsStore();
+
 export const pool = new SimplePool();

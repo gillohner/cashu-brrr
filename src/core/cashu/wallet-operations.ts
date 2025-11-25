@@ -8,22 +8,10 @@
 import {
     CashuMint,
     CashuWallet,
-    type GetInfoResponse,
-    type MintActiveKeys,
-    type MintAllKeysets,
     type OutputAmounts,
     type Proof,
 } from '@cashu/cashu-ts';
-
-/**
- * Mint configuration and metadata
- */
-export interface MintInfo {
-    url: string;
-    keys: MintActiveKeys;
-    keysets: MintAllKeysets;
-    info: GetInfoResponse;
-}
+import type { Mint } from '../../types/cashu';
 
 /**
  * Load mint information from URL
@@ -31,7 +19,7 @@ export interface MintInfo {
  * @param mintUrl - Mint URL
  * @returns Mint information
  */
-export async function loadMint(mintUrl: string): Promise<MintInfo> {
+export async function loadMint(mintUrl: string): Promise<Mint> {
     try {
         const cashuMint = new CashuMint(mintUrl);
         const mintInfo = await cashuMint.getInfo();
@@ -59,7 +47,7 @@ export async function loadMint(mintUrl: string): Promise<MintInfo> {
  * @returns Configured wallet
  */
 export async function createWallet(
-    mint: MintInfo,
+    mint: Mint,
     unit = 'sat'
 ): Promise<CashuWallet> {
     const keys = mint.keys.keysets.find((ks) => ks.unit === unit);

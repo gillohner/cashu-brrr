@@ -3,21 +3,36 @@
  * Extended types for Cashu operations
  */
 
-import type { CashuWallet, MintQuoteResponse, Proof } from '@cashu/cashu-ts';
+import type { CashuWallet, MintQuoteResponse, Proof, Token, GetInfoResponse, MintActiveKeys, MintAllKeysets } from '@cashu/cashu-ts';
 
 export interface Mint {
   url: string;
-  name?: string;
-  description?: string;
-  icon?: string;
-  units?: string[];
-  contacts?: MintContact[];
-  motd?: string;
+  keys: MintActiveKeys;
+  keysets: MintAllKeysets;
+  info: GetInfoResponse;
 }
 
 export interface MintContact {
   method: string;
   info: string;
+}
+
+export interface Print {
+  tokens: Token[];
+  donation?: Token;
+  mint: string;
+  ts: number;
+}
+
+export interface DiscoveredMint {
+  url: string;
+  reviews: number;
+}
+
+export interface Contact {
+  npub: string;
+  alias: string;
+  picture?: string;
 }
 
 export interface WalletState {

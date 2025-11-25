@@ -1,9 +1,7 @@
 import {
   CashuMint,
   CashuWallet,
-  type GetInfoResponse,
   type MintActiveKeys,
-  type MintAllKeysets,
   type OutputAmounts,
   type Proof,
 } from "@cashu/cashu-ts";
@@ -12,6 +10,7 @@ import {
 } from "../state/stores/printing.svelte";
 import { get } from "svelte/store";
 import { toast } from "svelte-sonner";
+import type { Mint } from "../types/cashu";
 
 export const getAmountForTokenSet = (tokens: Array<Proof>): number => {
   return tokens.reduce((acc, t) => {
@@ -77,13 +76,6 @@ const formatFiat = (amount: number, unit?: string): string => {
     maximumFractionDigits: 2,
     currency: unit?.toUpperCase(),
   }).format(amount / 100);
-};
-
-export type Mint = {
-  url: string;
-  keys: MintActiveKeys;
-  keysets: MintAllKeysets;
-  info: GetInfoResponse;
 };
 
 export const loadMint = async (mintUrl: string): Promise<Mint> => {
@@ -159,7 +151,7 @@ export const createOutputAmount = async (denomination: number) => {
       constructedToken.push(amount);
       remaining -= amount;
     }
-    
+
     // Early exit if we've reached the target
     if (remaining === 0) {
       return constructedToken;
