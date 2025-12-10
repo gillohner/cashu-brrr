@@ -138,10 +138,12 @@ export async function loadAvailableTemplates(): Promise<MountainlakeTemplate[]> 
   try {
     // Load template files from the public directory
     const templateFiles = [
-      'sunset-orange.mountainlake.json',
-      'bitcoin-baden.mountainlake.json',
+      'bitcoinbaden-red.mountainlake.json',
       'light-monochrome.mountainlake.json',
+      'mountainlake-blue.mountainlake.json',
+      'mountainlake-design-blue.mountainlake.json',
       'satoshi-blue.mountainlake.json',
+      'sunset-orange.mountainlake.json',
       // Add more template files here as they are added to the public folder
       // This list is automatically updated by running: npm run addTemplate
     ];
